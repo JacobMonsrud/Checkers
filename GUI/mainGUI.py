@@ -20,6 +20,7 @@ def getCenterPosForBoardSquare(xpos: int, ypos: int):
     indexX = 0
     indexY = 0
 
+
     jumpX = screen_width // 10
     jumpY = screen_height // 10
 
