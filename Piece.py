@@ -1,4 +1,5 @@
-from GUI import MainGUI
+import Constants
+
 
 class Piece:
 
@@ -9,9 +10,9 @@ class Piece:
         self.color = color
 
     def getPixelPos(self):
-        dim = MainGUI.MainGUI.screen_dimension // 10
-        offset = (dim - MainGUI.MainGUI.piece_dimension) // 2
+        dim = Constants.screen_dimension // 10
+        offset = (dim - Constants.piece_dimension) // 2
 
-        pixelX = (self.row + 1) * dim + offset
-        pixelY = (self.col + 1) * dim + offset
+        pixelX = (self.col + 1) * dim + offset
+        pixelY = (self.row + 1) * dim + offset
         return (pixelX, pixelY)
