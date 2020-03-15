@@ -1,5 +1,5 @@
 import pygame
-from GUI import GameGUI
+from GUI import GameGUI, MainMenuGUI
 import Constants, Game
 
 
@@ -15,8 +15,6 @@ class MainGUI:
 
     def runGame(self):
 
-        #GameGUI
-        game = Game.Game()
-        gameGUI = GameGUI.GameGUI(self.window, self.clock)
-        gameGUI.runGame()
+        mainmenu = MainMenuGUI.MainMenuGUI(self.window, self.clock)
+        mainmenu.runGame()
 
