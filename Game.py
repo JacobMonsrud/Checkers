@@ -62,18 +62,19 @@ class Game:
             legal = True
             if not (((colFrom + 1) == colTo or (colFrom - 1) == colTo) and (rowFrom == rowTo - 1)):
                 legal = False
+
                 # ^^ Illegal unless its jump an opponent
                 if abs(colFrom - colTo) == 2 and abs(rowFrom - rowTo) == 2:
                     if colFrom > colTo:
                         # left jump
                         if (rowFrom + 1, colFrom - 1) in self.piecesMap:
-                            if self.piecesMap[(rowFrom + 1, colFrom - 1)].color == Constants.Constants.Black:
+                            if self.piecesMap[(rowFrom + 1, colFrom - 1)].color in {Constants.Constants.Black, Constants.Constants.BlackKing}:
                                 legal = True
                                 self.removePieceAt(rowFrom + 1, colFrom - 1)
                     else:
                         # right jump
                         if (rowFrom + 1, colFrom + 1) in self.piecesMap:
-                            if self.piecesMap[(rowFrom + 1, colFrom + 1)].color == Constants.Constants.Black:
+                            if self.piecesMap[(rowFrom + 1, colFrom + 1)].color in {Constants.Constants.Black, Constants.Constants.BlackKing}:
                                 legal = True
                                 self.removePieceAt(rowFrom + 1, colFrom + 1)
             if not legal:
@@ -87,13 +88,13 @@ class Game:
                     if colFrom > colTo:
                         # left jump
                         if (rowFrom - 1, colFrom - 1) in self.piecesMap:
-                            if self.piecesMap[(rowFrom - 1, colFrom - 1)].color == Constants.Constants.White:
+                            if self.piecesMap[(rowFrom - 1, colFrom - 1)].color in {Constants.Constants.White, Constants.Constants.WhiteKing}:
                                 legal = True
                                 self.removePieceAt(rowFrom - 1, colFrom - 1)
                     else:
                         # right jump
                         if (rowFrom - 1, colFrom + 1) in self.piecesMap:
-                            if self.piecesMap[(rowFrom - 1, colFrom + 1)].color == Constants.Constants.White:
+                            if self.piecesMap[(rowFrom - 1, colFrom + 1)].color in {Constants.Constants.White, Constants.Constants.WhiteKing}:
                                 legal = True
                                 self.removePieceAt(rowFrom - 1, colFrom + 1)
             if not legal:
@@ -106,5 +107,10 @@ class Game:
         pieceToMove = self.piecesMap[(rowFrom, colFrom)]
         pieceToMove.row = rowTo
         pieceToMove.col = colTo
+        if rowTo == 0 and Constants.Constants.Black:
+            pieceToMove.color = Constants.Constants.BlackKing
+        elif rowTo == 7 and pieceToMove.color == Constants.Constants.White:
+            pieceToMove.color = Constants.Constants.WhiteKing
         self.piecesMap[(rowTo, colTo)] = pieceToMove
         self.removePieceAt(rowFrom, colFrom)
+
