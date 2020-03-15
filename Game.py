@@ -35,7 +35,7 @@ class Game:
 
 
     def isValidMove(self, rowFrom, colFrom, rowTo, colTo):
-        pass
+        return True
 
 
     def movePieceFromTo(self, rowFrom, colFrom, rowTo, colTo):
