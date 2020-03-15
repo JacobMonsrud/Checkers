@@ -1,6 +1,6 @@
 import Constants
 
-
+# Pieces are only used by the GUI.
 class Piece:
 
     def __init__(self, row, col, color):

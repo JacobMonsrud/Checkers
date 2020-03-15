@@ -38,7 +38,6 @@ class MainMenuGUI:
     def runGame(self):
 
         # Main loop
-        stop = False
         run = True
         while run:
             # fps
@@ -59,7 +58,6 @@ class MainMenuGUI:
                         game = Game.Game()
                         gameGUI = GameGUI.GameGUI(self.window, self.clock, game)
                         gameGUI.runGame()
-                        stop = True
 
-            if not stop:
-                self.redrawGameWindow()
+
+            self.redrawGameWindow()

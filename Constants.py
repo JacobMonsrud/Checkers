@@ -7,4 +7,5 @@ piece_dimension = 40
 class Constants(enum.Enum):
     White = 0
     Black = 1
-
+    WhiteKing = 2
+    BlackKing = 3
