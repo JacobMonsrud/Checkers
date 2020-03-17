@@ -9,3 +9,6 @@ class Constants(enum.Enum):
     Black = 1
     WhiteKing = 2
     BlackKing = 3
+
+    WhitePlayerTurn = 4
+    BlackPlayerTurn = 5

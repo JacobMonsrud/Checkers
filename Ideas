@@ -3,3 +3,8 @@ White = 0
 Black = 1
 WhiteKing = 2
 BlackKing = 3
+
+
+Current bugs:
+kings removes random pieces
+Kings no drag animation
