@@ -61,7 +61,7 @@ class Game:
         if self.piecesMap[(rowFrom, colFrom)].color in {Constants.Constants.White, Constants.Constants.WhiteKing}:
             if not self.playerInTurn == Constants.Constants.WhitePlayerTurn:
                 return False
-        elif self.piecesMap[(rowFrom, colFrom)].color in {Constants.Constants.Black, Constants.Constants.Black}:
+        elif self.piecesMap[(rowFrom, colFrom)].color in {Constants.Constants.Black, Constants.Constants.BlackKing}:
             if not self.playerInTurn == Constants.Constants.BlackPlayerTurn:
                 return False
 
@@ -165,6 +165,22 @@ class Game:
                 return False
 
         return True
+
+
+    def isValidMoveBlack(self):
+        pass
+
+
+    def isValidMoveWhite(self):
+        pass
+
+
+    def isValidMoveBlackKing(self):
+        pass
+
+
+    def isValidMoveWhiteKing(self):
+        pass
 
 
     def movePieceFromTo(self, rowFrom, colFrom, rowTo, colTo):
