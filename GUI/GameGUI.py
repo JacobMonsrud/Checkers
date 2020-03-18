@@ -57,9 +57,9 @@ class GameGUI:
                         self.window.blit(pygame.image.load('GUI/images/blackpiece.png'), (centerDragX, centerDragY))
                     elif movingPiece.color == Constants.Constants.White:
                         self.window.blit(pygame.image.load('GUI/images/whitepiece.png'), (centerDragX, centerDragY))
-                    elif currentPiece.color == Constants.Constants.BlackKing:
+                    elif movingPiece.color == Constants.Constants.BlackKing:
                         self.window.blit(pygame.image.load('GUI/images/blackpieceking.png'), (centerDragX, centerDragY))
-                    elif currentPiece.color == Constants.Constants.WhiteKing:
+                    elif movingPiece.color == Constants.Constants.WhiteKing:
                         self.window.blit(pygame.image.load('GUI/images/whitepieceking.png'), (centerDragX, centerDragY))
         pygame.display.update()
 

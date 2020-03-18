@@ -3,7 +3,8 @@ import Piece, Constants
 
 class Game:
 
-    def __init__(self):
+    def __init__(self, gameMode):
+        self.gameMode = gameMode
         self.playerInTurn = Constants.Constants.BlackPlayerTurn
         # Setup the board. Map form (row, col) to Pieces (class). (0,0) is top-left.
         self.piecesMap = dict()
@@ -54,6 +55,11 @@ class Game:
         if (rowTo, colTo) in self.piecesMap:
             return False
 
+        # Must be within the board
+        for i in {rowFrom, rowTo, colFrom, colTo}:
+            if not i in range(1, 8):
+                return False
+
         # Only allow black squares
         if (rowTo + colTo) % 2 == 0:
             return False
@@ -76,7 +82,7 @@ class Game:
             return False
 
 
-    # Precondition: Piece at from. No piece at to. Move to black square. Is players turn.
+    # Precondition: Piece at from. No piece at to. Move to black square. Is players turn. Within the board
     # This only checks, does NOT change the board
     def isValidMoveMen(self, rowFrom, colFrom, rowTo, colTo):
         fromPiece = self.piecesMap[(rowFrom, colFrom)]
@@ -122,7 +128,7 @@ class Game:
             return False
 
 
-    # Precondition: Piece at from. No piece at to. Move to black-square. Is players turn.
+    # Precondition: Piece at from. No piece at to. Move to black-square. Is players turn. Within the board
     # This only checks, does NOT change the board
     def isValidMoveKing(self, rowFrom, colFrom, rowTo, colTo):
         fromPiece = self.piecesMap[(rowFrom, colFrom)]
@@ -146,7 +152,6 @@ class Game:
 
         else:
             return False
-
 
 
     #Precondition: The move is checked valid.
