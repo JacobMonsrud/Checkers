@@ -55,7 +55,7 @@ class MainMenuGUI:
                     elif self.pvpX <= xPos <= self.pvpX + self.pvp.get_width() and self.pvpY <= yPos <= self.pvpY + self.pvp.get_height():
                         run = False
                         # GameGUI
-                        game = Game.Game()
+                        game = Game.Game(1)
                         gameGUI = GameGUI.GameGUI(self.window, self.clock, game)
                         gameGUI.runGame()
 

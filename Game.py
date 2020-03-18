@@ -3,14 +3,15 @@ import Piece, Constants
 
 class Game:
 
-    def __init__(self, gameMode):
-        self.gameMode = gameMode
+    def __init__(self, opponent):
+        self.opponent = opponent
         self.playerInTurn = Constants.Constants.BlackPlayerTurn
         # Setup the board. Map form (row, col) to Pieces (class). (0,0) is top-left.
         self.piecesMap = dict()
         self.setupPieces()
 
-    def setupPieces(self):
+
+    def setupPieces(self) -> None:
         # Setup the white pieces
         for row in range(0, 3):
             if (row % 2 == 0):
@@ -30,22 +31,26 @@ class Game:
                     self.piecesMap[(row, col)] = Piece.Piece(row, col, Constants.Constants.Black)
 
 
-    def getPiecesMap(self):
+    def getPiecesMap(self) -> dict:
         return self.piecesMap
 
 
-    def removePieceAt(self, row, col):
+    def getOpponent(self):
+        return self.opponent
+
+
+    def removePieceAt(self, row, col) -> None:
         del self.piecesMap[(row, col)]
 
 
-    def switchPlayerInTurn(self):
+    def switchPlayerInTurn(self) -> None:
         if self.playerInTurn == Constants.Constants.BlackPlayerTurn:
             self.playerInTurn = Constants.Constants.WhitePlayerTurn
         else:
             self.playerInTurn = Constants.Constants.BlackPlayerTurn
 
 
-    def isValidMove(self, rowFrom, colFrom, rowTo, colTo):
+    def isValidMove(self, rowFrom, colFrom, rowTo, colTo) -> bool:
         pieceFrom = self.piecesMap[(rowFrom, colFrom)]
         # Must be a piece at from pos
         if (rowFrom, colFrom) not in self.piecesMap:
@@ -84,7 +89,7 @@ class Game:
 
     # Precondition: Piece at from. No piece at to. Move to black square. Is players turn. Within the board
     # This only checks, does NOT change the board
-    def isValidMoveMen(self, rowFrom, colFrom, rowTo, colTo):
+    def isValidMoveMen(self, rowFrom, colFrom, rowTo, colTo) -> bool:
         fromPiece = self.piecesMap[(rowFrom, colFrom)]
         colMovement = abs(colFrom - colTo)
 
@@ -130,7 +135,7 @@ class Game:
 
     # Precondition: Piece at from. No piece at to. Move to black-square. Is players turn. Within the board
     # This only checks, does NOT change the board
-    def isValidMoveKing(self, rowFrom, colFrom, rowTo, colTo):
+    def isValidMoveKing(self, rowFrom, colFrom, rowTo, colTo) -> bool:
         fromPiece = self.piecesMap[(rowFrom, colFrom)]
         colMovement = abs(colFrom - colTo)
         rowMovement = abs(rowFrom - rowTo)
@@ -155,7 +160,7 @@ class Game:
 
 
     #Precondition: The move is checked valid.
-    def movePieceFromTo(self, rowFrom, colFrom, rowTo, colTo):
+    def movePieceFromTo(self, rowFrom, colFrom, rowTo, colTo) -> None:
         pieceToMove = self.piecesMap[(rowFrom, colFrom)]
         pieceToMove.row = rowTo
         pieceToMove.col = colTo
