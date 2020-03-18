@@ -65,124 +65,104 @@ class Game:
             if not self.playerInTurn == Constants.Constants.BlackPlayerTurn:
                 return False
 
-        # Only allow forward movement for normal pieces
-        if self.piecesMap[(rowFrom, colFrom)].color == Constants.Constants.White:
-            if rowFrom >= rowTo:
-                return False
-        elif self.piecesMap[(rowFrom, colFrom)].color == Constants.Constants.Black:
-            if rowFrom <= rowTo:
-                return False
+        # DELEGATE FROM HERE
+        if self.piecesMap[(rowFrom, colFrom)] in {Constants.Constants.White, Constants.Constants.Black}:
+            return self.isValidMoveMen(rowFrom, colFrom, rowTo, colTo)
+        elif self.piecesMap[(rowFrom, colFrom)] in {Constants.Constants.WhiteKing, Constants.Constants.BlackKing}:
+            return self.isValidMoveKing(rowFrom, colFrom, rowTo, colTo)
+        else:
+            # should never be reached
+            return False
 
-        # Only god knows how this works
-        if self.piecesMap[(rowFrom, colFrom)].color in {Constants.Constants.White, Constants.Constants.WhiteKing}:
-            legal = True
-            if (colFrom + 1 == colTo or colFrom - 1 == colTo) and rowFrom == rowTo - 1 and self.piecesMap[(rowFrom, colFrom)].color == Constants.Constants.White:
-                legal = True
-            elif (colFrom + 1 == colTo or colFrom - 1 == colTo) and (rowFrom == rowTo - 1 or rowFrom == rowTo + 1) and self.piecesMap[(rowFrom, colFrom)].color == Constants.Constants.WhiteKing:
-                legal = True
-            # ^^ Illegal unless its jump an opponent
-            elif abs(colFrom - colTo) == 2 and abs(rowFrom - rowTo) == 2:
-                if colFrom > colTo:
-                    # left jump
-                    if (rowFrom + 1, colFrom - 1) in self.piecesMap:
-                        if self.piecesMap[(rowFrom + 1, colFrom - 1)].color in {Constants.Constants.Black, Constants.Constants.BlackKing}:
-                            legal = True
-                            self.removePieceAt(rowFrom + 1, colFrom - 1)
-                        else:
-                            legal = False
-                    elif (rowFrom - 1, colFrom - 1) in self.piecesMap and self.piecesMap[((rowFrom, colFrom))].color == Constants.Constants.WhiteKing:
-                        if self.piecesMap[(rowFrom - 1, colFrom - 1)].color in {Constants.Constants.Black, Constants.Constants.BlackKing}:
-                            legal = True
-                            self.removePieceAt(rowFrom - 1, colFrom - 1)
-                        else:
-                            legal = False
-                    else:
-                        legal = False
+
+    # Precondition: Piece at from. No piece at to. Move to black square. Is players turn.
+    # This only checks, does NOT change the board
+    def isValidMoveMen(self, rowFrom, colFrom, rowTo, colTo):
+        fromPiece = self.piecesMap[(rowFrom, colFrom)]
+        colMovement = abs(colFrom - colTo)
+
+        # Simple white move. No capture
+        if colMovement == 1 and rowFrom + 1 == rowTo and fromPiece.color == Constants.Constants.White:
+            return True
+        # Simple black move. No capture
+        elif colMovement == 1 and rowFrom - 1 == rowTo and fromPiece.color == Constants.Constants.Black:
+            return True
+        # White capture move
+        elif colMovement == 2 and rowFrom + 2 == rowTo and fromPiece.color == Constants.Constants.White:
+            if colFrom > colTo:
+                # left jump | is jumping an enemy
+                if (rowFrom + 1, colFrom - 1) in self.piecesMap:
+                    return self.piecesMap[(rowFrom + 1, colFrom - 1)].color in {Constants.Constants.Black, Constants.Constants.BlackKing}
                 else:
-                    # right jump
-                    if (rowFrom + 1, colFrom + 1) in self.piecesMap:
-                        if self.piecesMap[(rowFrom + 1, colFrom + 1)].color in {Constants.Constants.Black, Constants.Constants.BlackKing}:
-                            legal = True
-                            self.removePieceAt(rowFrom + 1, colFrom + 1)
-                        else:
-                            legal = False
-                    elif (rowFrom - 1, colFrom + 1) in self.piecesMap and self.piecesMap[((rowFrom, colFrom))].color == Constants.Constants.WhiteKing:
-                        if self.piecesMap[(rowFrom - 1, colFrom + 1)].color in {Constants.Constants.Black, Constants.Constants.BlackKing}:
-                            legal = True
-                            self.removePieceAt(rowFrom - 1, colFrom + 1)
-                        else:
-                            legal = False
-                    else:
-                        legal = False
-            else:
-                legal = False
-            if not legal:
-                return False
+                    return False
 
-        elif self.piecesMap[(rowFrom, colFrom)].color in {Constants.Constants.Black, Constants.Constants.BlackKing}:
-            legal = True
-            if (colFrom + 1 == colTo or colFrom - 1 == colTo) and rowFrom == rowTo + 1 and self.piecesMap[(rowFrom, colFrom)].color == Constants.Constants.Black:
-                legal = True
-            elif (colFrom + 1 == colTo or colFrom - 1 == colTo) and (rowFrom == rowTo + 1 or rowFrom == rowTo - 1) and self.piecesMap[(rowFrom, colFrom)].color == Constants.Constants.BlackKing:
-                legal = True
-                # ^^ Illegal unless its jump an opponent
-            elif abs(colFrom - colTo) == 2 and abs(rowFrom - rowTo) == 2:
-                if colFrom > colTo:
-                    # left jump
-                    if (rowFrom - 1, colFrom - 1) in self.piecesMap:
-                        if self.piecesMap[(rowFrom - 1, colFrom - 1)].color in {Constants.Constants.White, Constants.Constants.WhiteKing}:
-                            legal = True
-                            self.removePieceAt(rowFrom - 1, colFrom - 1)
-                        else:
-                            legal = False
-                    elif (rowFrom + 1, colFrom - 1) in self.piecesMap and self.piecesMap[((rowFrom, colFrom))].color == Constants.Constants.BlackKing:
-                        if self.piecesMap[(rowFrom + 1, colFrom - 1)].color in {Constants.Constants.White, Constants.Constants.WhiteKing}:
-                            legal = True
-                            self.removePieceAt(rowFrom + 1, colFrom - 1)
-                        else:
-                            legal = False
-                    else:
-                        legal = False
+            else:
+                #right jump
+                if (rowFrom + 1, colFrom + 1) in self.piecesMap:
+                    return self.piecesMap[(rowFrom + 1, colFrom + 1)].color in {Constants.Constants.Black, Constants.Constants.BlackKing}
                 else:
-                    # right jump
-                    if (rowFrom - 1, colFrom + 1) in self.piecesMap:
-                        if self.piecesMap[(rowFrom - 1, colFrom + 1)].color in {Constants.Constants.White, Constants.Constants.WhiteKing}:
-                            legal = True
-                            self.removePieceAt(rowFrom - 1, colFrom + 1)
-                        else:
-                            legal = False
-                    elif (rowFrom + 1, colFrom + 1) in self.piecesMap and self.piecesMap[((rowFrom, colFrom))].color == Constants.Constants.BlackKing:
-                        if self.piecesMap[(rowFrom + 1, colFrom + 1)].color in {Constants.Constants.White, Constants.Constants.WhiteKing}:
-                            legal = True
-                            self.removePieceAt(rowFrom + 1, colFrom + 1)
-                        else:
-                            legal = False
-                    else:
-                        legal = False
+                    return False
+        # Black capture move
+        elif colMovement == 2 and rowFrom - 2 == rowTo and fromPiece.color == Constants.Constants.Black:
+            if colFrom > colTo:
+                # left jump | is jumping an enemy
+                if (rowFrom - 1, colFrom - 1) in self.piecesMap:
+                    return self.piecesMap[(rowFrom - 1, colFrom - 1)].color in {Constants.Constants.White, Constants.Constants.WhiteKing}
+                else:
+                    return False
+
             else:
-                legal = False
-            if not legal:
-                return False
-
-        return True
-
-
-    def isValidMoveBlack(self):
-        pass
+                #right jump
+                if (rowFrom - 1, colFrom + 1) in self.piecesMap:
+                    return self.piecesMap[(rowFrom - 1, colFrom + 1)].color in {Constants.Constants.White, Constants.Constants.WhiteKing}
+                else:
+                    return False
+        else:
+            return False
 
 
-    def isValidMoveWhite(self):
-        pass
+    # Precondition: Piece at from. No piece at to. Move to black-square. Is players turn.
+    # This only checks, does NOT change the board
+    def isValidMoveKing(self, rowFrom, colFrom, rowTo, colTo):
+        fromPiece = self.piecesMap[(rowFrom, colFrom)]
+        colMovement = abs(colFrom - colTo)
+        rowMovement = abs(rowFrom - rowTo)
+
+        movingRight = colFrom < colTo
+        movingLeft = not movingRight
+        movingUp = rowFrom > rowTo
+        movingDown = not movingUp
+
+        (checkRow, checkCol, myColor) = (10, 10, 10)
+
+        # Simple white or black move. No capture
+        if colMovement == 1 and rowMovement == 1:
+            return True
+        # Capture
+        elif colMovement == 2 and rowMovement == 2:
+
+            if movingUp and movingLeft:
+                (checkRow, checkCol, color) = (rowFrom - 1, colFrom - 1, fromPiece.color)
+            elif movingUp and movingRight:
+                (checkRow, checkCol, color) = (rowFrom - 1, colFrom + 1, fromPiece.color)
+            elif movingDown and movingRight:
+                (checkRow, checkCol, color) = (rowFrom + 1, colFrom + 1, fromPiece.color)
+            elif movingDown and movingLeft:
+                (checkRow, checkCol, color) = (rowFrom + 1, colFrom - 1, fromPiece.color)
+        else:
+            return False
+
+        if (checkRow, checkCol) in self.piecesMap:
+            if myColor == Constants.Constants.WhiteKing:
+                return self.piecesMap[(checkRow, checkCol)].color in {Constants.Constants.Black, Constants.Constants.BlackKing}
+            elif myColor == Constants.Constants.BlackKing:
+                return self.piecesMap[(checkRow, checkCol)].color in {Constants.Constants.White, Constants.Constants.WhiteKing}
+        else:
+            return False
 
 
-    def isValidMoveBlackKing(self):
-        pass
 
-
-    def isValidMoveWhiteKing(self):
-        pass
-
-
+    #Precondition: The move is checked valid.
     def movePieceFromTo(self, rowFrom, colFrom, rowTo, colTo):
         pieceToMove = self.piecesMap[(rowFrom, colFrom)]
         pieceToMove.row = rowTo
@@ -194,7 +174,11 @@ class Game:
         self.piecesMap[(rowTo, colTo)] = pieceToMove
         self.removePieceAt(rowFrom, colFrom)
 
-
+        # Capture move
+        if abs(rowFrom - rowTo) == 2:
+            rowDel = (max(rowFrom, rowTo) - min(rowFrom, rowTo)) / 2
+            colDel = (max(colFrom, colTo) - min(colFrom, colTo)) / 2
+            self.removePieceAt(rowDel, colDel)
         # to be removed
         self.switchPlayerInTurn()
 
