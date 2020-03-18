@@ -45,6 +45,7 @@ class Game:
 
 
     def isValidMove(self, rowFrom, colFrom, rowTo, colTo):
+        pieceFrom = self.piecesMap[(rowFrom, colFrom)]
         # Must be a piece at from pos
         if (rowFrom, colFrom) not in self.piecesMap:
             return False
@@ -58,17 +59,17 @@ class Game:
             return False
 
         # Must be players turn
-        if self.piecesMap[(rowFrom, colFrom)].color in {Constants.Constants.White, Constants.Constants.WhiteKing}:
+        if pieceFrom.color in {Constants.Constants.White, Constants.Constants.WhiteKing}:
             if not self.playerInTurn == Constants.Constants.WhitePlayerTurn:
                 return False
-        elif self.piecesMap[(rowFrom, colFrom)].color in {Constants.Constants.Black, Constants.Constants.BlackKing}:
+        elif pieceFrom.color in {Constants.Constants.Black, Constants.Constants.BlackKing}:
             if not self.playerInTurn == Constants.Constants.BlackPlayerTurn:
                 return False
 
         # DELEGATE FROM HERE
-        if self.piecesMap[(rowFrom, colFrom)] in {Constants.Constants.White, Constants.Constants.Black}:
+        if pieceFrom.color in {Constants.Constants.White, Constants.Constants.Black}:
             return self.isValidMoveMen(rowFrom, colFrom, rowTo, colTo)
-        elif self.piecesMap[(rowFrom, colFrom)] in {Constants.Constants.WhiteKing, Constants.Constants.BlackKing}:
+        elif pieceFrom.color in {Constants.Constants.WhiteKing, Constants.Constants.BlackKing}:
             return self.isValidMoveKing(rowFrom, colFrom, rowTo, colTo)
         else:
             # should never be reached
@@ -128,35 +129,21 @@ class Game:
         colMovement = abs(colFrom - colTo)
         rowMovement = abs(rowFrom - rowTo)
 
-        movingRight = colFrom < colTo
-        movingLeft = not movingRight
-        movingUp = rowFrom > rowTo
-        movingDown = not movingUp
-
-        (checkRow, checkCol, myColor) = (10, 10, 10)
-
         # Simple white or black move. No capture
         if colMovement == 1 and rowMovement == 1:
             return True
         # Capture
         elif colMovement == 2 and rowMovement == 2:
+            checkRow = (max(rowFrom, rowTo) + min(rowFrom, rowTo)) / 2
+            checkCol = (max(colFrom, colTo) + min(colFrom, colTo)) / 2
+            if (checkRow, checkCol) in self.piecesMap:
+                if fromPiece.color == Constants.Constants.WhiteKing:
+                    return self.piecesMap[(checkRow, checkCol)].color in {Constants.Constants.Black, Constants.Constants.BlackKing}
+                elif fromPiece.color == Constants.Constants.BlackKing:
+                    return self.piecesMap[(checkRow, checkCol)].color in {Constants.Constants.White, Constants.Constants.WhiteKing}
+            else:
+                return False
 
-            if movingUp and movingLeft:
-                (checkRow, checkCol, color) = (rowFrom - 1, colFrom - 1, fromPiece.color)
-            elif movingUp and movingRight:
-                (checkRow, checkCol, color) = (rowFrom - 1, colFrom + 1, fromPiece.color)
-            elif movingDown and movingRight:
-                (checkRow, checkCol, color) = (rowFrom + 1, colFrom + 1, fromPiece.color)
-            elif movingDown and movingLeft:
-                (checkRow, checkCol, color) = (rowFrom + 1, colFrom - 1, fromPiece.color)
-        else:
-            return False
-
-        if (checkRow, checkCol) in self.piecesMap:
-            if myColor == Constants.Constants.WhiteKing:
-                return self.piecesMap[(checkRow, checkCol)].color in {Constants.Constants.Black, Constants.Constants.BlackKing}
-            elif myColor == Constants.Constants.BlackKing:
-                return self.piecesMap[(checkRow, checkCol)].color in {Constants.Constants.White, Constants.Constants.WhiteKing}
         else:
             return False
 
@@ -176,8 +163,8 @@ class Game:
 
         # Capture move
         if abs(rowFrom - rowTo) == 2:
-            rowDel = (max(rowFrom, rowTo) - min(rowFrom, rowTo)) / 2
-            colDel = (max(colFrom, colTo) - min(colFrom, colTo)) / 2
+            rowDel = (max(rowFrom, rowTo) + min(rowFrom, rowTo)) // 2
+            colDel = (max(colFrom, colTo) + min(colFrom, colTo)) // 2
             self.removePieceAt(rowDel, colDel)
         # to be removed
         self.switchPlayerInTurn()
