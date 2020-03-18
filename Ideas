@@ -5,4 +5,6 @@ WhiteKing = 2
 BlackKing = 3
 
 
-Current bugs:
+Current bugs and TODOs:
+Tillad at capture flere i én tur.
+Man SKAL tage en brik hvis man kan.
