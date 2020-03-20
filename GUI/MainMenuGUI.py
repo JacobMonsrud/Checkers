@@ -59,5 +59,5 @@ class MainMenuGUI:
                         gameGUI = GameGUI.GameGUI(self.window, self.clock, game)
                         gameGUI.runGame()
 
-
-            self.redrawGameWindow()
+            if run:
+                self.redrawGameWindow()

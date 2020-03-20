@@ -17,4 +17,3 @@ class MainGUI:
 
         mainmenu = MainMenuGUI.MainMenuGUI(self.window, self.clock)
         mainmenu.runGame()
-

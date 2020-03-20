@@ -46,9 +46,9 @@ class GameGUI:
                     else:
                         (pixelX, pixelY) = currentPiece.getPixelPos()
 
-                    if currentPiece.color == Constants.Constants.Black:
+                    if currentPiece.color == Constants.Constants.BlackMen:
                         self.window.blit(pygame.image.load('GUI/images/blackpiece.png'), (pixelX, pixelY))
-                    elif currentPiece.color == Constants.Constants.White:
+                    elif currentPiece.color == Constants.Constants.WhiteMen:
                         self.window.blit(pygame.image.load('GUI/images/whitepiece.png'), (pixelX, pixelY))
                     elif currentPiece.color == Constants.Constants.BlackKing:
                         self.window.blit(pygame.image.load('GUI/images/blackpieceking.png'), (pixelX, pixelY))
@@ -96,7 +96,6 @@ class GameGUI:
                     drag = False
                     (dragX, dragY) = (0, 0)
                     (exceptIndexX, exceptIndexY) = (10, 10)
-
 
             self.redrawGameWindow(exceptIndexX, exceptIndexY, dragX, dragY)
 
