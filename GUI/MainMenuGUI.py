@@ -1,7 +1,7 @@
 import pygame
-import Game
+from Gameplay import Game, Constants
 from GUI import GameGUI
-import Constants
+
 
 class MainMenuGUI:
 

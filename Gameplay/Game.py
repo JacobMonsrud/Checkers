@@ -1,4 +1,4 @@
-import Piece, Constants
+from Gameplay import Constants, Piece
 
 
 class Game:
@@ -62,7 +62,7 @@ class Game:
 
         # Must be within the board
         for i in {rowFrom, rowTo, colFrom, colTo}:
-            if not i in range(1, 8):
+            if not i in range(0, 8):
                 return False
 
         # Only allow black squares
@@ -179,3 +179,6 @@ class Game:
         # to be removed
         self.switchPlayerInTurn()
 
+
+    def getValidMovesForPlayer(self):
+        pass

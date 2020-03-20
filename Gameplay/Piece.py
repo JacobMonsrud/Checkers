@@ -1,4 +1,5 @@
-import Constants
+from Gameplay import Constants
+
 
 # Pieces are only used by the GUI.
 class Piece:

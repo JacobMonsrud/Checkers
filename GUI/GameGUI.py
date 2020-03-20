@@ -1,5 +1,5 @@
 import pygame
-import Piece, Constants
+from Gameplay import Constants
 
 
 class GameGUI:
@@ -37,9 +37,15 @@ class GameGUI:
         # Draw pieces according to
         for row in range(0, 8):
             for col in range(0, 8):
-                if (row, col) in piecesMap and (row, col) != (exceptIndexX, exceptIndexY):
+                if (row, col) in piecesMap:
                     currentPiece = piecesMap[(row, col)]
-                    (pixelX, pixelY) = currentPiece.getPixelPos()
+                    (pixelX, pixelY) = (0, 0)
+                    if  (row, col) == (exceptIndexX, exceptIndexY):
+                        (pixelX, pixelY) = (dragX - (Constants.piece_dimension // 2), dragY - (
+                                    Constants.piece_dimension // 2))
+                    else:
+                        (pixelX, pixelY) = currentPiece.getPixelPos()
+
                     if currentPiece.color == Constants.Constants.Black:
                         self.window.blit(pygame.image.load('GUI/images/blackpiece.png'), (pixelX, pixelY))
                     elif currentPiece.color == Constants.Constants.White:
@@ -48,19 +54,6 @@ class GameGUI:
                         self.window.blit(pygame.image.load('GUI/images/blackpieceking.png'), (pixelX, pixelY))
                     elif currentPiece.color == Constants.Constants.WhiteKing:
                         self.window.blit(pygame.image.load('GUI/images/whitepieceking.png'), (pixelX, pixelY))
-
-                elif (row, col) in piecesMap and (row, col) == (exceptIndexX, exceptIndexY):
-                    movingPiece = piecesMap[(row, col)]
-                    centerDragX = dragX - (Constants.piece_dimension // 2)
-                    centerDragY = dragY - (Constants.piece_dimension // 2)
-                    if movingPiece.color == Constants.Constants.Black:
-                        self.window.blit(pygame.image.load('GUI/images/blackpiece.png'), (centerDragX, centerDragY))
-                    elif movingPiece.color == Constants.Constants.White:
-                        self.window.blit(pygame.image.load('GUI/images/whitepiece.png'), (centerDragX, centerDragY))
-                    elif movingPiece.color == Constants.Constants.BlackKing:
-                        self.window.blit(pygame.image.load('GUI/images/blackpieceking.png'), (centerDragX, centerDragY))
-                    elif movingPiece.color == Constants.Constants.WhiteKing:
-                        self.window.blit(pygame.image.load('GUI/images/whitepieceking.png'), (centerDragX, centerDragY))
         pygame.display.update()
 
 

@@ -6,5 +6,14 @@ BlackKing = 3
 
 
 Current bugs and TODOs:
+
 Tillad at capture flere i én tur.
 Man SKAL tage en brik hvis man kan.
+Clean isValidMoveMen
+
+
+
+Man skal tage hvis man kan:
+game.getValidMovesForPlayer() -> alle lovlige moves lige nu. Hvis det ikke er ens tur returneres None.
+                                 skal tage hensyn til at hvis man KAN tage en brik, SKAL man gøre det.
+                                 derfor, hvis et sådan træk findes, er alle andre ulovlige.
