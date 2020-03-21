@@ -4,6 +4,9 @@ from Gameplay import Constants
 
 class GameGUI:
 
+    pygame.font.init()
+    font = pygame.font.SysFont('Comic Sans MS', 20, True, False)
+
     def __init__(self, window, clock, game):
         self.window = window
         self.clock = clock
@@ -26,12 +29,24 @@ class GameGUI:
         return (indexY - 1, indexX - 1)
 
 
-    def redrawGameWindow(self, exceptIndexX, exceptIndexY, dragX, dragY):
+    def redrawGameWindow(self, exceptIndexX, exceptIndexY, dragX, dragY, winner):
         # Board
         self.window.fill((247, 126, 0))
         self.window.blit(pygame.image.load('GUI/images/board.png'), (55, 55))
 
-        # Expensive call, optimize later
+        playerInTurnString = 'Player in turn: ' + str(self.game.playerInTurn)[10:15]
+        playerInTurnFont = self.font.render(playerInTurnString, False, (0, 0, 0))
+        self.window.blit(playerInTurnFont, (Constants.screen_dimension // 10, 10))
+        winnerPlayer = ''
+        if not winner == Constants.Constants.NoWinner:
+            winnerPlayer = str(winner)[10:15]
+        else:
+            winnerPlayer = 'No Winner'
+        winnerString = 'Winner: ' + winnerPlayer
+        winnerFont = self.font.render(winnerString, False, (0, 0, 0))
+        self.window.blit(winnerFont, ((Constants.screen_dimension - Constants.screen_dimension // 10) - winnerFont.get_width(), 10))
+
+        # Expensive call, optimize later. not really tho
         piecesMap = self.game.getPiecesMap()
 
         # Draw pieces according to
@@ -62,7 +77,7 @@ class GameGUI:
         drag = False
         (dragX, dragY) = (0, 0)
         (exceptIndexX, exceptIndexY) = (10, 10)
-
+        winner = Constants.Constants.NoWinner
         piecesMap = self.game.getPiecesMap()
 
         # Main loop
@@ -92,11 +107,12 @@ class GameGUI:
                         if (exceptIndexX, exceptIndexY) in piecesMap:
                             if self.game.isValidMove(exceptIndexX, exceptIndexY, newRow, newCol):
                                 self.game.movePieceFromTo(exceptIndexX, exceptIndexY, newRow, newCol)
+                                winner = self.game.checkForWinner()
 
                     drag = False
                     (dragX, dragY) = (0, 0)
                     (exceptIndexX, exceptIndexY) = (10, 10)
 
-            self.redrawGameWindow(exceptIndexX, exceptIndexY, dragX, dragY)
+            self.redrawGameWindow(exceptIndexX, exceptIndexY, dragX, dragY, winner)
 
         pygame.quit()

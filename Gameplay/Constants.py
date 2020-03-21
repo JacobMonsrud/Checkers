@@ -13,3 +13,6 @@ class Constants(enum.Enum):
 
     WhitePlayer = 4
     BlackPlayer = 5
+
+    Draw = 6
+    NoWinner = 7

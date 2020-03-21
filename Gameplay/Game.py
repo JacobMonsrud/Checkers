@@ -7,7 +7,7 @@ class Game:
         self.opponent = opponent
         self.playerInTurn = Constants.Constants.BlackPlayer
         self.lastMoveWasCapture = False
-        self.lastCaptureMovePos = (0, 0)
+        self.lastCaptureMovePos = (10, 10)
         # Setup the board. Map form (row, col) to Pieces (class). (0,0) is top-left.
         self.piecesMap = dict()
         self.setupPieces()
@@ -67,7 +67,7 @@ class Game:
         if (rowFrom, colFrom, rowTo, colTo) in allValidMoves:
             # Force double capture
             if self.lastMoveWasCapture:
-                return abs(rowFrom - rowTo) == 2
+                return abs(rowFrom - rowTo) == 2 and self.lastCaptureMovePos == (rowFrom, colFrom)
             else:
                 return True
 
@@ -186,6 +186,7 @@ class Game:
         self.removePieceAt(rowFrom, colFrom)
 
         self.lastMoveWasCapture = False
+        self.lastCaptureMovePos = (10, 10)
         newTurn = True
         # Capture move
         if abs(rowFrom - rowTo) == 2:
@@ -214,31 +215,59 @@ class Game:
 
         for piecePos in piecesList:
             # Search first for capture moves, as these MUST be done if avaliable before normal moves.
-            row = int(piecePos[0])
-            col = int(piecePos[1])
+            row = piecePos[0]
+            col = piecePos[1]
             for move in {(row - 2, col - 2), (row - 2, col + 2), (row + 2, col - 2), (row + 2, col + 2)}:
-                 if self.isValidMoveCalc(row, col, int(move[0]), int(move[1])):
-                    legalMoves.add((row, col, int(move[0]), int(move[1])))
+                 if self.isValidMoveCalc(row, col, move[0], move[1]):
+                    legalMoves.add((row, col, move[0], move[1]))
 
         if len(legalMoves) > 0:
             return legalMoves
         else:
             for piecePos in piecesList:
-                row = int(piecePos[0])
-                col = int(piecePos[1])
+                row = piecePos[0]
+                col = piecePos[1]
                 for moveOne in {(row - 1, col - 1), (row - 1, col + 1), (row + 1, col - 1), (row + 1, col + 1)}:
-                    if self.isValidMoveCalc(row, col, int(moveOne[0]), int(moveOne[1])):
-                        legalMoves.add((row, col, int(moveOne[0]), int(moveOne[1])))
+                    if self.isValidMoveCalc(row, col, moveOne[0], moveOne[1]):
+                        legalMoves.add((row, col, moveOne[0], moveOne[1]))
             return legalMoves
 
 
     def isCaptureMoveFromPos(self, row, col) -> bool:
         for move in {(row - 2, col - 2), (row - 2, col + 2), (row + 2, col - 2), (row + 2, col + 2)}:
-            if self.isValidMoveCalc(row, col, int(move[0]), int(move[1])):
+            if self.isValidMoveCalc(row, col, move[0], move[1]):
                 return True
         return False
 
 
-    # Win = opponent has no legal moves or no pieces left
-    def checkForWinner(self):
-        pass
+    # Win = opponent has no legal moves or no pieces left. As little calculation as possible
+    def checkForWinner(self) -> int:
+        piecesWhite = [(r, c) for (r, c) in self.piecesMap if self.piecesMap[(r, c)].color in {Constants.Constants.WhiteMen, Constants.Constants.WhiteKing}]
+        piecesBlack = [(r, c) for (r, c) in self.piecesMap if self.piecesMap[(r, c)].color in {Constants.Constants.BlackMen, Constants.Constants.BlackKing}]
+
+        if len(piecesWhite) == 0 and self.playerInTurn == Constants.Constants.WhitePlayer:
+            return Constants.Constants.BlackPlayer
+        elif len(piecesBlack) == 0 and self.playerInTurn == Constants.Constants.BlackPlayer:
+            return Constants.Constants.WhitePlayer
+
+        whiteHasAMove = False
+        blackHasAmove = False
+        for piece in piecesWhite:
+            (row, col) = piece
+            for move in {(row - 1, col - 1), (row - 1, col + 1), (row + 1, col - 1), (row + 1, col + 1), (row - 2, col - 2), (row - 2, col + 2), (row + 2, col - 2), (row + 2, col + 2)}:
+                if self.isValidMoveCalc(row, col, move[0], move[1]):
+                    whiteHasAMove = True
+                    break
+        for piece in piecesBlack:
+            (row, col) = piece
+            for move in {(row - 1, col - 1), (row - 1, col + 1), (row + 1, col - 1), (row + 1, col + 1), (row - 2, col - 2), (row - 2, col + 2), (row + 2, col - 2), (row + 2, col + 2)}:
+                if self.isValidMoveCalc(row, col, move[0], move[1]):
+                    blackHasAmove = True
+                    break
+
+        if (whiteHasAMove and self.playerInTurn == Constants.Constants.WhitePlayer) or (blackHasAmove and self.playerInTurn == Constants.Constants.BlackPlayer):
+            return Constants.Constants.NoWinner
+        if whiteHasAMove is False and self.playerInTurn == Constants.Constants.WhitePlayer:
+            return Constants.Constants.BlackPlayer
+        if blackHasAmove is False and self.playerInTurn == Constants.Constants.BlackPlayer:
+            return Constants.Constants.WhitePlayer
