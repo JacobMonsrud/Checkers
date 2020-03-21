@@ -102,7 +102,7 @@ class Game:
             return False
 
 
-    # Precondition: Piece at from. No piece at to. Move to black square. Is players turn. Within the board
+    # Precondition: Piece at from. No piece at to. Move to black square. Within the board
     # This only checks, does NOT change the board
     def __isValidMoveMen(self, rowFrom, colFrom, rowTo, colTo) -> bool:
         fromPiece = self.piecesMap[(rowFrom, colFrom)]
@@ -148,7 +148,7 @@ class Game:
             return False
 
 
-    # Precondition: Piece at from. No piece at to. Move to black-square. Is players turn. Within the board
+    # Precondition: Piece at from. No piece at to. Move to black-square. Within the board
     # This only checks, does NOT change the board
     def __isValidMoveKing(self, rowFrom, colFrom, rowTo, colTo) -> bool:
         fromPiece = self.piecesMap[(rowFrom, colFrom)]
@@ -239,5 +239,6 @@ class Game:
         return False
 
 
+    # Win = opponent has no legal moves or no pieces left
     def checkForWinner(self):
         pass
