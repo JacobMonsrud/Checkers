@@ -17,3 +17,8 @@ class Piece:
         pixelX = (self.col + 1) * dim + offset
         pixelY = (self.row + 1) * dim + offset
         return (pixelX, pixelY)
+
+
+    def getHash(self):
+        c = 0
+        return str(self.row) + str(self.col) + str(self.color.value)

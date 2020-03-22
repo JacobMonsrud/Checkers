@@ -38,10 +38,12 @@ class GameGUI:
         playerInTurnFont = self.font.render(playerInTurnString, False, (0, 0, 0))
         self.window.blit(playerInTurnFont, (Constants.screen_dimension // 10, 10))
         winnerPlayer = ''
-        if not winner == Constants.Constants.NoWinner:
+        if winner == Constants.Constants.NoWinner:
+            winnerPlayer = 'No Winner'
+        elif winner in {Constants.Constants.BlackPlayer, Constants.Constants.WhitePlayer}:
             winnerPlayer = str(winner)[10:15]
         else:
-            winnerPlayer = 'No Winner'
+            winnerPlayer = 'Draw'
         winnerString = 'Winner: ' + winnerPlayer
         winnerFont = self.font.render(winnerString, False, (0, 0, 0))
         self.window.blit(winnerFont, ((Constants.screen_dimension - Constants.screen_dimension // 10) - winnerFont.get_width(), 10))

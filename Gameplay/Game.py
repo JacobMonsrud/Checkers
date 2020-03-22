@@ -8,6 +8,9 @@ class Game:
         self.playerInTurn = Constants.Constants.BlackPlayer
         self.lastMoveWasCapture = False
         self.lastCaptureMovePos = (10, 10)
+        self.currentWinner = Constants.Constants.NoWinner
+        self.hashedBoards = dict()
+        self.numberOfNoCaptures = 0
         # Setup the board. Map form (row, col) to Pieces (class). (0,0) is top-left.
         self.piecesMap = dict()
         self.setupPieces()
@@ -53,6 +56,10 @@ class Game:
 
 
     def isValidMove(self, rowFrom, colFrom, rowTo, colTo) -> bool:
+        # Game must not have ended
+        if self.currentWinner in {Constants.Constants.WhitePlayer, Constants.Constants.BlackPlayer, Constants.Constants.Draw}:
+            return False
+
         pieceFrom = self.piecesMap[(rowFrom, colFrom)]
         # Must be players turn
         if pieceFrom.color in {Constants.Constants.WhiteMen, Constants.Constants.WhiteKing}:
@@ -193,14 +200,24 @@ class Game:
             rowDel = (max(rowFrom, rowTo) + min(rowFrom, rowTo)) // 2
             colDel = (max(colFrom, colTo) + min(colFrom, colTo)) // 2
             self.removePieceAt(rowDel, colDel)
-
+            self.numberOfNoCaptures = 0
             if self.isCaptureMoveFromPos(rowTo, colTo):
                 self.lastMoveWasCapture = True
                 self.lastCaptureMovePos = (rowTo, colTo)
                 newTurn = False
+        else:
+            self.numberOfNoCaptures += 1
 
         if newTurn:
             self.switchPlayerInTurn()
+
+        hashCurrentBoard = self.getHashForBoard()
+        if hashCurrentBoard in self.hashedBoards:
+            times = self.hashedBoards[hashCurrentBoard]
+            times += 1
+            self.hashedBoards[hashCurrentBoard] = times
+        else:
+            self.hashedBoards[hashCurrentBoard] = 1
 
 
     def getValidMovesForPlayer(self, player) -> set:
@@ -242,12 +259,22 @@ class Game:
 
     # Win = opponent has no legal moves or no pieces left. As little calculation as possible
     def checkForWinner(self) -> int:
+        if self.numberOfNoCaptures >= 50:
+            self.currentWinner = Constants.Constants.Draw
+            return Constants.Constants.Draw
+        for board in self.hashedBoards.values():
+            if board >= 3:
+                self.currentWinner = Constants.Constants.Draw
+                return Constants.Constants.Draw
+
         piecesWhite = [(r, c) for (r, c) in self.piecesMap if self.piecesMap[(r, c)].color in {Constants.Constants.WhiteMen, Constants.Constants.WhiteKing}]
         piecesBlack = [(r, c) for (r, c) in self.piecesMap if self.piecesMap[(r, c)].color in {Constants.Constants.BlackMen, Constants.Constants.BlackKing}]
 
         if len(piecesWhite) == 0 and self.playerInTurn == Constants.Constants.WhitePlayer:
+            self.currentWinner = Constants.Constants.BlackPlayer
             return Constants.Constants.BlackPlayer
         elif len(piecesBlack) == 0 and self.playerInTurn == Constants.Constants.BlackPlayer:
+            self.currentWinner = Constants.Constants.WhitePlayer
             return Constants.Constants.WhitePlayer
 
         whiteHasAMove = False
@@ -266,8 +293,21 @@ class Game:
                     break
 
         if (whiteHasAMove and self.playerInTurn == Constants.Constants.WhitePlayer) or (blackHasAmove and self.playerInTurn == Constants.Constants.BlackPlayer):
+            self.currentWinner = Constants.Constants.NoWinner
             return Constants.Constants.NoWinner
         if whiteHasAMove is False and self.playerInTurn == Constants.Constants.WhitePlayer:
+            self.currentWinner = Constants.Constants.BlackPlayer
             return Constants.Constants.BlackPlayer
         if blackHasAmove is False and self.playerInTurn == Constants.Constants.BlackPlayer:
+            self.currentWinner = Constants.Constants.WhitePlayer
             return Constants.Constants.WhitePlayer
+
+
+    def getHashForBoard(self) -> str:
+        # Loop as I want the same order every time
+        hashStr = ''
+        for row in range(0, 8):
+            for col in range(0, 8):
+                if (row, col) in self.piecesMap:
+                    hashStr += self.piecesMap[(row, col)].getHash()
+        return hashStr
