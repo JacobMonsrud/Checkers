@@ -11,7 +11,7 @@ class Game:
         self.currentWinner = Constants.Constants.NoWinner
         self.hashedBoards = dict()
         self.numberOfNoCaptures = 0
-        # Setup the board. Map form (row, col) to Pieces (class). (0,0) is top-left.
+        # Setup the board. Map from (row, col) to Pieces (class). (0,0) is top-left.
         self.piecesMap = dict()
         self.setupPieces()
 
