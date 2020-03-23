@@ -19,4 +19,4 @@ class Constants(enum.Enum):
 
     PvpOpo = 8
     LevelZeroOpo = 9
-
+    LevelOneOpo = 10

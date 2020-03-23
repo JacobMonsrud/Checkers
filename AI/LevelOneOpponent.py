@@ -1,7 +1,7 @@
 from Gameplay import Constants, ValidMoveAlgo
-import random
 
-class LevelZeroOpponent:
+
+class LevelOneOpponent:
 
     def __init__(self, color):
         # Color is black or white
@@ -9,11 +9,10 @@ class LevelZeroOpponent:
         self.validateMoveAlgo = ValidMoveAlgo.ValidMoveAlgo()
 
 
-
     def getMove(self, board):
         legalMoves = set()
         legalMoves = self.validateMoveAlgo.getValidMovesForPlayer(self.color, board)
-        return random.choice(tuple(legalMoves))
+        pass
 
 
 
@@ -33,4 +32,4 @@ class LevelZeroOpponent:
 
 
     def getOpponentType(self):
-        return Constants.Constants.LevelZeroOpo
+        return Constants.Constants.LevelOneOpo
