@@ -7,9 +7,8 @@ class PvpOpponent:
         self.color = color
 
 
-
     def getMove(self, board):
-        return Constants.Constants.PvpMove
+        return (-1, -1, -1, -1)
 
 
     def getColor(self):

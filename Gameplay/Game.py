@@ -1,4 +1,5 @@
 from Gameplay import Constants, Piece
+import copy
 
 class Game:
 
@@ -14,6 +15,8 @@ class Game:
         # Setup the board. Map from (row, col) to Pieces (class). (0,0) is top-left.
         self.piecesMap = dict()
         self.__setupPieces()
+
+        self.initGame()
 
 
     def __setupPieces(self) -> None:
@@ -34,6 +37,14 @@ class Game:
             else:
                 for col in range(0, 8, 2):
                     self.piecesMap[(row, col)] = Piece.Piece(row, col, Constants.Constants.BlackMen)
+
+
+    def initGame(self):
+        # Black always starts
+        if self.opponent.getColor() == Constants.Constants.BlackPlayer:
+            (rf, cf, rt, ct) = self.getOpponentMove()
+            if not (rf, cf, rt, ct) == (-1, -1, -1, -1):
+                self.movePieceFromTo(rf, cf, rt, ct)
 
 
     def getPiecesMap(self) -> dict:
@@ -67,6 +78,7 @@ class Game:
             self.playerInTurn = Constants.Constants.BlackPlayer
 
 
+
     # Should only be used by GUI, not AI's.
     def isValidMove(self, rowFrom, colFrom, rowTo, colTo) -> bool:
         # Game must not have ended
@@ -90,7 +102,7 @@ class Game:
                     return False
 
         # As I want a general purpose method for calculating valid moves.
-        allValidMoves = self.getValidMovesForPlayer(self.playerInTurn)
+        allValidMoves = self.getValidMovesForPlayer(self.playerInTurn, self.piecesMap)
         if (rowFrom, colFrom, rowTo, colTo) in allValidMoves:
             # Force double capture
             if self.lastMoveWasCapture:
@@ -121,9 +133,9 @@ class Game:
 
         # DELEGATE FROM HERE
         if pieceFrom.color in {Constants.Constants.WhiteMen, Constants.Constants.BlackMen}:
-            return self.__isValidMoveMen(rowFrom, colFrom, rowTo, colTo)
+            return self.__isValidMoveMen(rowFrom, colFrom, rowTo, colTo, board)
         elif pieceFrom.color in {Constants.Constants.WhiteKing, Constants.Constants.BlackKing}:
-            return self.__isValidMoveKing(rowFrom, colFrom, rowTo, colTo)
+            return self.__isValidMoveKing(rowFrom, colFrom, rowTo, colTo, board)
         else:
             # should never be reached
             return False
@@ -131,8 +143,8 @@ class Game:
 
     # Precondition: Piece at from. No piece at to. Move to black square. Within the board
     # This only checks, does NOT change the board
-    def __isValidMoveMen(self, rowFrom, colFrom, rowTo, colTo) -> bool:
-        fromPiece = self.piecesMap[(rowFrom, colFrom)]
+    def __isValidMoveMen(self, rowFrom, colFrom, rowTo, colTo, board) -> bool:
+        fromPiece = board[(rowFrom, colFrom)]
         colMovement = abs(colFrom - colTo)
 
         # Simple white move. No capture
@@ -145,30 +157,30 @@ class Game:
         elif colMovement == 2 and rowFrom + 2 == rowTo and fromPiece.color == Constants.Constants.WhiteMen:
             if colFrom > colTo:
                 # left jump | is jumping an enemy
-                if (rowFrom + 1, colFrom - 1) in self.piecesMap:
-                    return self.piecesMap[(rowFrom + 1, colFrom - 1)].color in {Constants.Constants.BlackMen, Constants.Constants.BlackKing}
+                if (rowFrom + 1, colFrom - 1) in board:
+                    return board[(rowFrom + 1, colFrom - 1)].color in {Constants.Constants.BlackMen, Constants.Constants.BlackKing}
                 else:
                     return False
 
             else:
                 #right jump
-                if (rowFrom + 1, colFrom + 1) in self.piecesMap:
-                    return self.piecesMap[(rowFrom + 1, colFrom + 1)].color in {Constants.Constants.BlackMen, Constants.Constants.BlackKing}
+                if (rowFrom + 1, colFrom + 1) in board:
+                    return board[(rowFrom + 1, colFrom + 1)].color in {Constants.Constants.BlackMen, Constants.Constants.BlackKing}
                 else:
                     return False
         # Black capture move
         elif colMovement == 2 and rowFrom - 2 == rowTo and fromPiece.color == Constants.Constants.BlackMen:
             if colFrom > colTo:
                 # left jump | is jumping an enemy
-                if (rowFrom - 1, colFrom - 1) in self.piecesMap:
-                    return self.piecesMap[(rowFrom - 1, colFrom - 1)].color in {Constants.Constants.WhiteMen, Constants.Constants.WhiteKing}
+                if (rowFrom - 1, colFrom - 1) in board:
+                    return board[(rowFrom - 1, colFrom - 1)].color in {Constants.Constants.WhiteMen, Constants.Constants.WhiteKing}
                 else:
                     return False
 
             else:
                 #right jump
-                if (rowFrom - 1, colFrom + 1) in self.piecesMap:
-                    return self.piecesMap[(rowFrom - 1, colFrom + 1)].color in {Constants.Constants.WhiteMen, Constants.Constants.WhiteKing}
+                if (rowFrom - 1, colFrom + 1) in board:
+                    return board[(rowFrom - 1, colFrom + 1)].color in {Constants.Constants.WhiteMen, Constants.Constants.WhiteKing}
                 else:
                     return False
         else:
@@ -177,8 +189,8 @@ class Game:
 
     # Precondition: Piece at from. No piece at to. Move to black-square. Within the board
     # This only checks, does NOT change the board
-    def __isValidMoveKing(self, rowFrom, colFrom, rowTo, colTo) -> bool:
-        fromPiece = self.piecesMap[(rowFrom, colFrom)]
+    def __isValidMoveKing(self, rowFrom, colFrom, rowTo, colTo, board) -> bool:
+        fromPiece = board[(rowFrom, colFrom)]
         colMovement = abs(colFrom - colTo)
         rowMovement = abs(rowFrom - rowTo)
 
@@ -189,11 +201,11 @@ class Game:
         elif colMovement == 2 and rowMovement == 2:
             checkRow = (max(rowFrom, rowTo) + min(rowFrom, rowTo)) / 2
             checkCol = (max(colFrom, colTo) + min(colFrom, colTo)) / 2
-            if (checkRow, checkCol) in self.piecesMap:
+            if (checkRow, checkCol) in board:
                 if fromPiece.color == Constants.Constants.WhiteKing:
-                    return self.piecesMap[(checkRow, checkCol)].color in {Constants.Constants.BlackMen, Constants.Constants.BlackKing}
+                    return board[(checkRow, checkCol)].color in {Constants.Constants.BlackMen, Constants.Constants.BlackKing}
                 elif fromPiece.color == Constants.Constants.BlackKing:
-                    return self.piecesMap[(checkRow, checkCol)].color in {Constants.Constants.WhiteMen, Constants.Constants.WhiteKing}
+                    return board[(checkRow, checkCol)].color in {Constants.Constants.WhiteMen, Constants.Constants.WhiteKing}
             else:
                 return False
         else:
@@ -221,7 +233,7 @@ class Game:
             colDel = (max(colFrom, colTo) + min(colFrom, colTo)) // 2
             self.removePieceAt(rowDel, colDel)
             self.numberOfNoCaptures = 0
-            if self.isCaptureMoveFromPos(rowTo, colTo):
+            if self.isCaptureMoveFromPos(rowTo, colTo, self.piecesMap):
                 self.lastMoveWasCapture = True
                 self.lastCaptureMovePos = (rowTo, colTo)
                 newTurn = False
@@ -239,23 +251,32 @@ class Game:
         else:
             self.hashedBoards[hashCurrentBoard] = 1
 
+        self.nextMove()
 
-    def getValidMovesForPlayer(self, player) -> set:
+
+    def nextMove(self):
+        if self.playerInTurn == self.opponent.getColor():
+            (rf, cf, rt, ct) = self.getOpponentMove()
+            if not (rf, cf, rt, ct) == (-1, -1, -1, -1):
+                self.movePieceFromTo(rf, cf, rt, ct)
+
+
+    def getValidMovesForPlayer(self, player, board) -> set:
         # Map from start pos to end pos.
         legalMoves = set()
         piecesList = list()
         # Get pos of all players pieces
         if player == Constants.Constants.WhitePlayer:
-            piecesList = [(r, c) for (r, c) in self.piecesMap if self.piecesMap[(r, c)].color in {Constants.Constants.WhiteMen, Constants.Constants.WhiteKing}]
+            piecesList = [(r, c) for (r, c) in board if board[(r, c)].color in {Constants.Constants.WhiteMen, Constants.Constants.WhiteKing}]
         else:
-            piecesList = [(r, c) for (r, c) in self.piecesMap if self.piecesMap[(r, c)].color in {Constants.Constants.BlackMen, Constants.Constants.BlackKing}]
+            piecesList = [(r, c) for (r, c) in board if board[(r, c)].color in {Constants.Constants.BlackMen, Constants.Constants.BlackKing}]
 
         for piecePos in piecesList:
             # Search first for capture moves, as these MUST be done if avaliable before normal moves.
             row = piecePos[0]
             col = piecePos[1]
             for move in {(row - 2, col - 2), (row - 2, col + 2), (row + 2, col - 2), (row + 2, col + 2)}:
-                 if self.isValidMoveCalc(row, col, move[0], move[1], self.piecesMap):
+                 if self.isValidMoveCalc(row, col, move[0], move[1], board):
                     legalMoves.add((row, col, move[0], move[1]))
 
         if len(legalMoves) > 0:
@@ -270,9 +291,9 @@ class Game:
             return legalMoves
 
 
-    def isCaptureMoveFromPos(self, row, col) -> bool:
+    def isCaptureMoveFromPos(self, row, col, board) -> bool:
         for move in {(row - 2, col - 2), (row - 2, col + 2), (row + 2, col - 2), (row + 2, col + 2)}:
-            if self.isValidMoveCalc(row, col, move[0], move[1], self.piecesMap):
+            if self.isValidMoveCalc(row, col, move[0], move[1], board):
                 return True
         return False
 
@@ -335,7 +356,8 @@ class Game:
 
     # Ask the opponent for a move to make
     def getOpponentMove(self):
-        #remove '1'
-        return self.opponent.getMove(1)
+        board = copy.deepcopy(self.piecesMap)
+        # return: (rowFrom, colFrom, rowTo, colTo)
+        return self.opponent.getMove(board)
 
 
