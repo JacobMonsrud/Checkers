@@ -16,3 +16,8 @@ class Constants(enum.Enum):
 
     Draw = 6
     NoWinner = 7
+
+    PvpOpo = 8
+    LevelZeroOpo = 9
+
+    PvpMove = (-1, -1, -1, -1)

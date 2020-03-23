@@ -1,6 +1,7 @@
 import pygame
 from Gameplay import Game, Constants
 from GUI import GameGUI
+from AI import PvpOpponent, LevelZeroOpponent
 
 
 class MainMenuGUI:
@@ -50,12 +51,18 @@ class MainMenuGUI:
                     (xPos, yPos) = pygame.mouse.get_pos()
 
                     if self.pvcX <= xPos <= self.pvcX + self.pvc.get_width() and self.pvcY <= yPos <= self.pvcY + self.pvc.get_height():
-                        pass
+                        run = False
+
+                        opponent = LevelZeroOpponent.LevelZeroOpponent(Constants.Constants.WhitePlayer)
+                        game = Game.Game(opponent)
+                        gameGUI = GameGUI.GameGUI(self.window, self.clock, game)
+                        gameGUI.runGame()
 
                     elif self.pvpX <= xPos <= self.pvpX + self.pvp.get_width() and self.pvpY <= yPos <= self.pvpY + self.pvp.get_height():
                         run = False
                         # GameGUI
-                        game = Game.Game(1)
+                        opponent = PvpOpponent.PvpOpponent(Constants.Constants.WhitePlayer)
+                        game = Game.Game(opponent)
                         gameGUI = GameGUI.GameGUI(self.window, self.clock, game)
                         gameGUI.runGame()
 

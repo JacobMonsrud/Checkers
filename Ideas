@@ -1,9 +1,6 @@
 I getMove algo: Brug ikke et map (x, y) -> Piece, men i stedet (x, y) -> int, hvor int betegner sort eller hvid. Piece er bare sugar for Game og GUI klasserne.
-White = 0
-Black = 1
-WhiteKing = 2
-BlackKing = 3
 
+Animation for AI moves.
 
 Current bugs and TODOs:
 

@@ -1,10 +1,10 @@
 from Gameplay import Constants, Piece
 
-
 class Game:
 
     def __init__(self, opponent):
         self.opponent = opponent
+        self.playerColor = self.__calcPlayerColor()
         self.playerInTurn = Constants.Constants.BlackPlayer
         self.lastMoveWasCapture = False
         self.lastCaptureMovePos = (10, 10)
@@ -13,10 +13,10 @@ class Game:
         self.numberOfNoCaptures = 0
         # Setup the board. Map from (row, col) to Pieces (class). (0,0) is top-left.
         self.piecesMap = dict()
-        self.setupPieces()
+        self.__setupPieces()
 
 
-    def setupPieces(self) -> None:
+    def __setupPieces(self) -> None:
         # Setup the white pieces
         for row in range(0, 3):
             if (row % 2 == 0):
@@ -37,11 +37,23 @@ class Game:
 
 
     def getPiecesMap(self) -> dict:
+        # Risky not to return a copy, but is only used by the GUI. Good for preformence
         return self.piecesMap
 
 
     def getOpponent(self):
         return self.opponent
+
+
+    def getPlayerColor(self):
+        return self.playerColor
+
+
+    def __calcPlayerColor(self):
+        if self.opponent.getColor() == Constants.Constants.WhitePlayer:
+            return Constants.Constants.BlackPlayer
+        else:
+            return Constants.Constants.WhitePlayer
 
 
     def removePieceAt(self, row, col) -> None:
@@ -55,19 +67,27 @@ class Game:
             self.playerInTurn = Constants.Constants.BlackPlayer
 
 
+    # Should only be used by GUI, not AI's.
     def isValidMove(self, rowFrom, colFrom, rowTo, colTo) -> bool:
         # Game must not have ended
         if self.currentWinner in {Constants.Constants.WhitePlayer, Constants.Constants.BlackPlayer, Constants.Constants.Draw}:
             return False
 
         pieceFrom = self.piecesMap[(rowFrom, colFrom)]
-        # Must be players turn
+
+        # Must be players turn. Must be players pieces. Except PvpOpo
         if pieceFrom.color in {Constants.Constants.WhiteMen, Constants.Constants.WhiteKing}:
             if not self.playerInTurn == Constants.Constants.WhitePlayer:
                 return False
+            if not self.opponent.getOpponentType() == Constants.Constants.PvpOpo:
+                if not self.playerColor == Constants.Constants.WhitePlayer:
+                    return False
         elif pieceFrom.color in {Constants.Constants.BlackMen, Constants.Constants.BlackKing}:
             if not self.playerInTurn == Constants.Constants.BlackPlayer:
                 return False
+            if not self.opponent.getOpponentType() == Constants.Constants.PvpOpo:
+                if not self.playerColor == Constants.Constants.BlackPlayer:
+                    return False
 
         # As I want a general purpose method for calculating valid moves.
         allValidMoves = self.getValidMovesForPlayer(self.playerInTurn)
@@ -80,14 +100,14 @@ class Game:
 
 
     # This only checks, does NOT change the board
-    def isValidMoveCalc(self, rowFrom, colFrom, rowTo, colTo) -> bool:
-        pieceFrom = self.piecesMap[(rowFrom, colFrom)]
+    def isValidMoveCalc(self, rowFrom, colFrom, rowTo, colTo, board) -> bool:
+        pieceFrom = board[(rowFrom, colFrom)]
         # Must be a piece at from pos
-        if (rowFrom, colFrom) not in self.piecesMap:
+        if (rowFrom, colFrom) not in board:
             return False
 
         # No piece at to pos
-        if (rowTo, colTo) in self.piecesMap:
+        if (rowTo, colTo) in board:
             return False
 
         # Must be within the board
@@ -180,7 +200,7 @@ class Game:
             return False
 
 
-    #Precondition: The move is checked valid.
+    # Precondition: The move is checked valid.
     def movePieceFromTo(self, rowFrom, colFrom, rowTo, colTo) -> None:
         pieceToMove = self.piecesMap[(rowFrom, colFrom)]
         pieceToMove.row = rowTo
@@ -235,7 +255,7 @@ class Game:
             row = piecePos[0]
             col = piecePos[1]
             for move in {(row - 2, col - 2), (row - 2, col + 2), (row + 2, col - 2), (row + 2, col + 2)}:
-                 if self.isValidMoveCalc(row, col, move[0], move[1]):
+                 if self.isValidMoveCalc(row, col, move[0], move[1], self.piecesMap):
                     legalMoves.add((row, col, move[0], move[1]))
 
         if len(legalMoves) > 0:
@@ -245,14 +265,14 @@ class Game:
                 row = piecePos[0]
                 col = piecePos[1]
                 for moveOne in {(row - 1, col - 1), (row - 1, col + 1), (row + 1, col - 1), (row + 1, col + 1)}:
-                    if self.isValidMoveCalc(row, col, moveOne[0], moveOne[1]):
+                    if self.isValidMoveCalc(row, col, moveOne[0], moveOne[1], self.piecesMap):
                         legalMoves.add((row, col, moveOne[0], moveOne[1]))
             return legalMoves
 
 
     def isCaptureMoveFromPos(self, row, col) -> bool:
         for move in {(row - 2, col - 2), (row - 2, col + 2), (row + 2, col - 2), (row + 2, col + 2)}:
-            if self.isValidMoveCalc(row, col, move[0], move[1]):
+            if self.isValidMoveCalc(row, col, move[0], move[1], self.piecesMap):
                 return True
         return False
 
@@ -282,13 +302,13 @@ class Game:
         for piece in piecesWhite:
             (row, col) = piece
             for move in {(row - 1, col - 1), (row - 1, col + 1), (row + 1, col - 1), (row + 1, col + 1), (row - 2, col - 2), (row - 2, col + 2), (row + 2, col - 2), (row + 2, col + 2)}:
-                if self.isValidMoveCalc(row, col, move[0], move[1]):
+                if self.isValidMoveCalc(row, col, move[0], move[1], self.piecesMap):
                     whiteHasAMove = True
                     break
         for piece in piecesBlack:
             (row, col) = piece
             for move in {(row - 1, col - 1), (row - 1, col + 1), (row + 1, col - 1), (row + 1, col + 1), (row - 2, col - 2), (row - 2, col + 2), (row + 2, col - 2), (row + 2, col + 2)}:
-                if self.isValidMoveCalc(row, col, move[0], move[1]):
+                if self.isValidMoveCalc(row, col, move[0], move[1], self.piecesMap):
                     blackHasAmove = True
                     break
 
@@ -311,3 +331,11 @@ class Game:
                 if (row, col) in self.piecesMap:
                     hashStr += self.piecesMap[(row, col)].getHash()
         return hashStr
+
+
+    # Ask the opponent for a move to make
+    def getOpponentMove(self):
+        #remove '1'
+        return self.opponent.getMove(1)
+
+
