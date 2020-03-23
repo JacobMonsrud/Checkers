@@ -1,7 +1,9 @@
 I getMove algo: Brug ikke et map (x, y) -> Piece, men i stedet (x, y) -> int, hvor int betegner sort eller hvid. Piece er bare sugar for Game og GUI klasserne.
 
-Animation for AI moves.
+TODOs:
+Animation for AI moves
+Draw new pieces
 
-Current bugs and TODOs:
-
-Clean isValidMoveMen
+Level 0: Random
+Level 1: Aldrig ryk hen så du kan captures
+Level 2: Minimax alpha beta prunnig

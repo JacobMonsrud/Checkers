@@ -74,6 +74,10 @@ class GameGUI:
         pygame.display.update()
 
 
+    def animateMove(self):
+        pass
+
+
     def runGame(self):
 
         drag = False

@@ -151,7 +151,10 @@ class Game:
         else:
             self.hashedBoards[hashCurrentBoard] = 1
 
-        self.nextMove()
+        self.checkForWinner()
+
+        if self.currentWinner == Constants.Constants.NoWinner:
+            self.nextMove()
 
 
     def nextMove(self):
