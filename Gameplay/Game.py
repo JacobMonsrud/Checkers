@@ -9,6 +9,7 @@ class Game:
         self.playerInTurn = Constants.Constants.BlackPlayer
         self.validateMoveAlgo = ValidMoveAlgo.ValidMoveAlgo()
         self.lastMoveWasCapture = False
+        self.shouldAnimate = (-1, -1, -1, -1, False)
         self.lastCaptureMovePos = (10, 10)
         self.currentWinner = Constants.Constants.NoWinner
         self.hashedBoards = dict()
@@ -57,6 +58,14 @@ class Game:
         return self.opponent
 
 
+    def shouldAnimateMove(self):
+        return self.shouldAnimate
+
+
+    def terminateAnimation(self):
+        self.shouldAnimate = (-1, -1, -1, -1, False)
+
+
     def getPlayerColor(self):
         return self.playerColor
 
@@ -86,6 +95,9 @@ class Game:
         if self.currentWinner in {Constants.Constants.WhitePlayer, Constants.Constants.BlackPlayer, Constants.Constants.Draw}:
             return False
 
+        if self.shouldAnimate[4]:
+            return False
+
         pieceFrom = self.piecesMap[(rowFrom, colFrom)]
 
         # Must be players turn. Must be players pieces. Except PvpOpo
@@ -112,8 +124,8 @@ class Game:
                 return True
 
 
-    # Precondition: The move is checked valid.
-    def movePieceFromTo(self, rowFrom, colFrom, rowTo, colTo) -> None:
+    # Precondition: The move is checked valid. Returns isComputerMove
+    def movePieceFromTo(self, rowFrom, colFrom, rowTo, colTo):
         pieceToMove = self.piecesMap[(rowFrom, colFrom)]
         pieceToMove.row = rowTo
         pieceToMove.col = colTo
@@ -162,6 +174,7 @@ class Game:
             (rf, cf, rt, ct) = self.getOpponentMove()
             if not (rf, cf, rt, ct) == (-1, -1, -1, -1):
                 self.movePieceFromTo(rf, cf, rt, ct)
+                self.shouldAnimate = (rf, cf, rt, ct, True)
 
 
     def isCaptureMoveFromPos(self, row, col, board) -> bool:

@@ -1,5 +1,7 @@
 import pygame
-from Gameplay import Constants
+import random as r
+import time
+from Gameplay import Constants, Piece
 
 
 class GameGUI:
@@ -29,7 +31,7 @@ class GameGUI:
         return (indexY - 1, indexX - 1)
 
 
-    def redrawGameWindow(self, exceptIndexX, exceptIndexY, dragX, dragY, winner):
+    def drawBasics(self, winner):
         # Board
         self.window.fill((247, 126, 0))
         self.window.blit(pygame.image.load('GUI/images/board.png'), (55, 55))
@@ -47,6 +49,10 @@ class GameGUI:
         winnerString = 'Winner: ' + winnerPlayer
         winnerFont = self.font.render(winnerString, False, (0, 0, 0))
         self.window.blit(winnerFont, ((Constants.screen_dimension - Constants.screen_dimension // 10) - winnerFont.get_width(), 10))
+
+
+    def redrawGameWindow(self, exceptIndexX, exceptIndexY, dragX, dragY, winner):
+        self.drawBasics(winner)
 
         # Expensive call, optimize later. not really tho
         piecesMap = self.game.getPiecesMap()
@@ -74,8 +80,43 @@ class GameGUI:
         pygame.display.update()
 
 
-    def animateMove(self):
-        pass
+    def animateMove(self, rowFrom, colFrom, rowTo, colTo, winner, depth):
+        self.drawBasics(winner)
+
+        piecesMap = self.game.getPiecesMap()
+
+        for row in range(0, 8):
+            for col in range(0, 8):
+                if (row, col) in piecesMap:
+                    currentPiece = piecesMap[(row, col)]
+                    (pixelX, pixelY) = (0, 0)
+                    if (row, col) == (rowTo, colTo):
+                        oldPieceHelper = Piece.Piece(rowFrom, colFrom, currentPiece.color)
+                        (pixelX, pixelY) = oldPieceHelper.getPixelPos()
+                        multiplier = abs(rowFrom - rowTo)
+                        directionRow = (rowTo - rowFrom) / abs(rowTo - rowFrom)
+                        directionCol = (colTo - colFrom) / abs(rowTo - rowFrom)
+                        offsetX = depth * multiplier * directionCol
+                        offsetY = depth * multiplier * directionRow
+                        (pixelX, pixelY) = (pixelX + offsetX, pixelY + offsetY)
+                    else:
+                        (pixelX, pixelY) = currentPiece.getPixelPos()
+                    if currentPiece.color == Constants.Constants.BlackMen:
+                        self.window.blit(pygame.image.load('GUI/images/blackpiece.png'), (pixelX, pixelY))
+                    elif currentPiece.color == Constants.Constants.WhiteMen:
+                        self.window.blit(pygame.image.load('GUI/images/whitepiece.png'), (pixelX, pixelY))
+                    elif currentPiece.color == Constants.Constants.BlackKing:
+                        self.window.blit(pygame.image.load('GUI/images/blackpieceking.png'), (pixelX, pixelY))
+                    elif currentPiece.color == Constants.Constants.WhiteKing:
+                        self.window.blit(pygame.image.load('GUI/images/whitepieceking.png'), (pixelX, pixelY))
+        pygame.display.update()
+
+        if depth > 60:
+            return
+        else:
+            time.sleep(0.005)
+            self.animateMove(rowFrom, colFrom, rowTo, colTo, winner, depth + 1)
+
 
 
     def runGame(self):
@@ -85,13 +126,15 @@ class GameGUI:
         (exceptIndexX, exceptIndexY) = (10, 10)
         winner = Constants.Constants.NoWinner
         piecesMap = self.game.getPiecesMap()
+        animating = False
 
         # Main loop
         run = True
         while run:
             # fps
             self.clock.tick(Constants.fps)
-
+            (rf, cf, rt, ct, ani) = self.game.shouldAnimateMove()
+            animating = ani
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     run = False
@@ -114,11 +157,17 @@ class GameGUI:
                             if self.game.isValidMove(exceptIndexX, exceptIndexY, newRow, newCol):
                                 self.game.movePieceFromTo(exceptIndexX, exceptIndexY, newRow, newCol)
                                 winner = self.game.checkForWinner()
+                                (rf, cf, rt, ct, ani) = self.game.shouldAnimateMove()
+                                animating = ani
 
                     drag = False
                     (dragX, dragY) = (0, 0)
                     (exceptIndexX, exceptIndexY) = (10, 10)
-
-            self.redrawGameWindow(exceptIndexX, exceptIndexY, dragX, dragY, winner)
+            if animating:
+                self.animateMove(rf, cf, rt, ct, winner, 0)
+                self.game.terminateAnimation()
+                animating = False
+            else:
+                self.redrawGameWindow(exceptIndexX, exceptIndexY, dragX, dragY, winner)
 
         pygame.quit()
