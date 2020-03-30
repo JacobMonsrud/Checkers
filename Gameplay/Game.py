@@ -46,6 +46,7 @@ class Game:
         if self.opponent.getColor() == Constants.Constants.BlackPlayer:
             (rf, cf, rt, ct) = self.getOpponentMove()
             if not (rf, cf, rt, ct) == (-1, -1, -1, -1):
+                self.shouldAnimate = (rf, cf, rt, ct, True)
                 self.movePieceFromTo(rf, cf, rt, ct)
 
 
@@ -87,7 +88,6 @@ class Game:
             self.playerInTurn = Constants.Constants.WhitePlayer
         else:
             self.playerInTurn = Constants.Constants.BlackPlayer
-
 
 
     # Should only be used by GUI, not AI's.
@@ -169,7 +169,6 @@ class Game:
         if self.currentWinner == Constants.Constants.NoWinner:
             if not self.shouldAnimate[4]:
                 self.nextMove()
-
 
 
     def nextMove(self):

@@ -93,7 +93,7 @@ class GameGUI:
                     if (row, col) == (rowTo, colTo):
                         oldPieceHelper = Piece.Piece(rowFrom, colFrom, currentPiece.color)
                         (pixelX, pixelY) = oldPieceHelper.getPixelPos()
-                        multiplier = abs(rowFrom - rowTo)
+                        multiplier = abs(rowFrom - rowTo) * 2
                         directionRow = (rowTo - rowFrom) / abs(rowTo - rowFrom)
                         directionCol = (colTo - colFrom) / abs(rowTo - rowFrom)
                         offsetX = depth * multiplier * directionCol
@@ -111,10 +111,9 @@ class GameGUI:
                         self.window.blit(pygame.image.load('GUI/images/whitepieceking.png'), (pixelX, pixelY))
         pygame.display.update()
 
-        if depth > 60:
+        if depth > 30:
             return
         else:
-            time.sleep(0.000001)
             self.animateMove(rowFrom, colFrom, rowTo, colTo, winner, depth + 1)
 
 
