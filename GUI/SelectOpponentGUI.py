@@ -1,7 +1,7 @@
 import pygame
 from Gameplay import Game, Constants
 from GUI import GameGUI
-from AI import PvpOpponent, LevelZeroOpponent
+from AI import PvpOpponent, LevelZeroOpponent, LevelOneOpponent
 
 
 class SelectOpponentGUI:
@@ -90,6 +90,14 @@ class SelectOpponentGUI:
 
                     elif self.lvl1X <= xPos <= self.lvl1X + self.lvl1.get_width() and self.lvl1Y <= yPos <= self.lvl1Y + self.lvl1.get_height():
                         run = False
+                        if self.playAsPiece == Constants.Constants.BlackPlayer:
+                            # Remember to switch, as you choose what you wanna play
+                            opponent = LevelOneOpponent.LevelOneOpponent(Constants.Constants.WhitePlayer)
+                        elif self.playAsPiece == Constants.Constants.WhitePlayer:
+                            opponent = LevelOneOpponent.LevelOneOpponent(Constants.Constants.BlackPlayer)
+                        game = Game.Game(opponent)
+                        gameGUI = GameGUI.GameGUI(self.window, self.clock, game)
+                        gameGUI.runGame()
 
             if run:
                 self.redrawGameWindow()

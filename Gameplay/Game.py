@@ -125,7 +125,7 @@ class Game:
                 return True
 
 
-    # Precondition: The move is checked valid. Returns isComputerMove
+    # Precondition: The move is checked valid.
     def movePieceFromTo(self, rowFrom, colFrom, rowTo, colTo):
         pieceToMove = self.piecesMap[(rowFrom, colFrom)]
         pieceToMove.row = rowTo
