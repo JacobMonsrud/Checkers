@@ -114,7 +114,7 @@ class GameGUI:
         if depth > 60:
             return
         else:
-            time.sleep(0.005)
+            time.sleep(0.000001)
             self.animateMove(rowFrom, colFrom, rowTo, colTo, winner, depth + 1)
 
 
@@ -164,9 +164,10 @@ class GameGUI:
                     (dragX, dragY) = (0, 0)
                     (exceptIndexX, exceptIndexY) = (10, 10)
             if animating:
+                winner = self.game.checkForWinner()
                 self.animateMove(rf, cf, rt, ct, winner, 0)
-                self.game.terminateAnimation()
                 animating = False
+                self.game.terminateAnimation()
             else:
                 self.redrawGameWindow(exceptIndexX, exceptIndexY, dragX, dragY, winner)
 

@@ -64,6 +64,7 @@ class Game:
 
     def terminateAnimation(self):
         self.shouldAnimate = (-1, -1, -1, -1, False)
+        self.nextMove()
 
 
     def getPlayerColor(self):
@@ -166,15 +167,17 @@ class Game:
         self.checkForWinner()
 
         if self.currentWinner == Constants.Constants.NoWinner:
-            self.nextMove()
+            if not self.shouldAnimate[4]:
+                self.nextMove()
+
 
 
     def nextMove(self):
         if self.playerInTurn == self.opponent.getColor():
             (rf, cf, rt, ct) = self.getOpponentMove()
             if not (rf, cf, rt, ct) == (-1, -1, -1, -1):
-                self.movePieceFromTo(rf, cf, rt, ct)
                 self.shouldAnimate = (rf, cf, rt, ct, True)
+                self.movePieceFromTo(rf, cf, rt, ct)
 
 
     def isCaptureMoveFromPos(self, row, col, board) -> bool:
