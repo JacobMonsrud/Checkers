@@ -9,10 +9,12 @@ class GameGUI:
     pygame.font.init()
     font = pygame.font.SysFont('Comic Sans MS', 20, True, False)
 
+
     def __init__(self, window, clock, game):
         self.window = window
         self.clock = clock
         self.game = game
+        self.aniDepth = 0
 
 
     def getPieceIndexAt(self, xPixelPos, yPixelPos):
@@ -111,10 +113,7 @@ class GameGUI:
                         self.window.blit(pygame.image.load('GUI/images/whitepieceking.png'), (pixelX, pixelY))
         pygame.display.update()
 
-        if depth > 30:
-            return
-        else:
-            self.animateMove(rowFrom, colFrom, rowTo, colTo, winner, depth + 1)
+        self.aniDepth += 1
 
 
 
@@ -164,10 +163,13 @@ class GameGUI:
                     (exceptIndexX, exceptIndexY) = (10, 10)
             if animating:
                 winner = self.game.checkForWinner()
-                self.animateMove(rf, cf, rt, ct, winner, 0)
-                animating = False
-                self.game.terminateAnimation()
+                self.animateMove(rf, cf, rt, ct, winner, self.aniDepth)
+                if self.aniDepth > 30:
+                    animating = False
+                    self.aniDepth = 0
+                    self.game.terminateAnimation()
             else:
                 self.redrawGameWindow(exceptIndexX, exceptIndexY, dragX, dragY, winner)
+
 
         pygame.quit()

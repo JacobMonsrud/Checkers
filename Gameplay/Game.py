@@ -130,7 +130,7 @@ class Game:
         pieceToMove = self.piecesMap[(rowFrom, colFrom)]
         pieceToMove.row = rowTo
         pieceToMove.col = colTo
-        if rowTo == 0 and Constants.Constants.BlackMen:
+        if rowTo == 0 and pieceToMove.color == Constants.Constants.BlackMen:
             pieceToMove.color = Constants.Constants.BlackKing
         elif rowTo == 7 and pieceToMove.color == Constants.Constants.WhiteMen:
             pieceToMove.color = Constants.Constants.WhiteKing
