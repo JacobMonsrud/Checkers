@@ -1,7 +1,7 @@
 import pygame
 from Gameplay import Game, Constants
 from GUI import GameGUI
-from AI import PvpOpponent, LevelZeroOpponent, LevelOneOpponent
+from AI import PvpOpponent, LevelZeroOpponent, LevelOneOpponent, LevelTwoOpponent
 
 
 class SelectOpponentGUI:
@@ -31,6 +31,10 @@ class SelectOpponentGUI:
     lvl1X = centerOfScreen - lvl1.get_width() // 2
     lvl1Y = 300
 
+    lvl2 = font.render('Level 2', False, (0, 0, 0))
+    lvl2X = centerOfScreen - lvl2.get_width() // 2
+    lvl2Y = 375
+
 
     def __init__(self, window, clock):
         self.window = window
@@ -54,6 +58,8 @@ class SelectOpponentGUI:
         self.window.blit(self.lvl0, (self.lvl0X, self.lvl0Y))
 
         self.window.blit(self.lvl1, (self.lvl1X, self.lvl1Y))
+
+        self.window.blit(self.lvl2, (self.lvl2X, self.lvl2Y))
 
         pygame.display.update()
 
@@ -95,6 +101,16 @@ class SelectOpponentGUI:
                             opponent = LevelOneOpponent.LevelOneOpponent(Constants.Constants.WhitePlayer)
                         elif self.playAsPiece == Constants.Constants.WhitePlayer:
                             opponent = LevelOneOpponent.LevelOneOpponent(Constants.Constants.BlackPlayer)
+                        game = Game.Game(opponent)
+                        gameGUI = GameGUI.GameGUI(self.window, self.clock, game)
+                        gameGUI.runGame()
+                    elif self.lvl2X <= xPos <= self.lvl2X + self.lvl2.get_width() and self.lvl2Y <= yPos <= self.lvl2Y + self.lvl2.get_height():
+                        run = False
+                        if self.playAsPiece == Constants.Constants.BlackPlayer:
+                            # Remember to switch, as you choose what you wanna play
+                            opponent = LevelTwoOpponent.LevelTwoOpponent(Constants.Constants.WhitePlayer)
+                        elif self.playAsPiece == Constants.Constants.WhitePlayer:
+                            opponent = LevelTwoOpponent.LevelTwoOpponent(Constants.Constants.BlackPlayer)
                         game = Game.Game(opponent)
                         gameGUI = GameGUI.GameGUI(self.window, self.clock, game)
                         gameGUI.runGame()

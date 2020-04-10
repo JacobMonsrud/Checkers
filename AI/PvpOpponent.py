@@ -1,5 +1,6 @@
 from Gameplay import Constants
 
+# Play pvp
 class PvpOpponent:
 
     def __init__(self, color):

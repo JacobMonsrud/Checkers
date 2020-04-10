@@ -2,6 +2,7 @@ from Gameplay import Constants, ValidMoveAlgo
 import copy
 import random
 
+# Picks a random, not leading to a enemy capture
 class LevelOneOpponent:
 
     def __init__(self, color):

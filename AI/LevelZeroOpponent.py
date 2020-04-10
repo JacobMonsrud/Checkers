@@ -1,6 +1,7 @@
 from Gameplay import Constants, ValidMoveAlgo
 import random
 
+# Picks a random move
 class LevelZeroOpponent:
 
     def __init__(self, color):
