@@ -18,9 +18,23 @@ class LevelTwoOpponent:
             #print("start board: " + str(l[0]))
             max = self.__minimax(l, 3, self.color, self.color)
             print("max[0]: " + str(max[0]))
-            print("max[1][1]: " + str(max[1][1:]))
+            print("max[1][1:]: " + str(max[1][1:]))
+
+            lastMove = (0, 0, 0, 0)
+            for move in max[1][1:]:
+                print("move: " + str(move))
+                if lastMove == (0, 0, 0, 0):
+                    lastMove = move
+                else:
+                    if (lastMove[2], lastMove[3]) == (move[0], move[1]):
+                        print("double jump:" + str(lastMove[2]) + str(lastMove[3]) + " to " + str(move[0]) + str(move[1]))
+                        self.toDoMoves.append(move)
+                        lastMove = move
 
             return max[1][1]
+        else:
+            print("todo: " + str(self.toDoMoves[0]))
+            return self.toDoMoves.pop(0)
 
 
     def __minimax(self, board, depth, maximizingPlayerDynamic, maximizingPlayer):
@@ -38,6 +52,7 @@ class LevelTwoOpponent:
                 maxValue = max(maxValue, value[0])
                 if maxValue == value[0]:
                     maxBoard = value[1]
+
             return (maxValue, maxBoard)
         else:
             minValue = 10000000
