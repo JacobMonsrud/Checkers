@@ -11,24 +11,36 @@ class LevelTwoOpponent:
 
 
     def getMove(self, board):
-        m = self.__minimax(board, 3, self.color, self.color)
-        print(str(m))
+        max = self.__minimax(board, 4, self.color, self.color)
+        print(str(max))
         legalMoves = set()
-        legalMoves = self.validateMoveAlgo.getValidMovesForPlayer(self.color, board)
+
+        childBoards = self.__getChildBoards(board, self.color)
+        boardKeys = set(board.keys())
+        for child in childBoards:
+            if self.__calcBoardValue(child, self.color) == max:
+                boardKeys = set(board.keys())
+                childKeys = set(child.keys())
+                # Logic not correct
+                (rowFrom, colFrom) = list(boardKeys - childKeys)[0]
+                (rowTo, colTo) = list(childKeys - boardKeys)[0]
+                legalMoves.add((rowFrom, colFrom, rowTo, colTo))
+
         return random.choice(tuple(legalMoves))
 
 
     def __minimax(self, board, depth, maximizingPlayerDynamic, maximizingPlayer):
         if depth == 0 or self.__isGameOver(board):
-            return self.__calcBoardValue(board, maximizingPlayer)
+            return (self.__calcBoardValue(board, maximizingPlayer))
 
         if maximizingPlayerDynamic == maximizingPlayer:
             maxValue = -10000000
+            (maxRowFrom, maxColFrom, maxRowTo, maxColTo) = (0, 0, 0, 0)
             childBoards = self.__getChildBoards(board, maximizingPlayerDynamic)
             for child in childBoards:
                 newMaximizingPlayer = self.__getNewMaximizingPlayer(maximizingPlayerDynamic)
                 value = self.__minimax(child, depth - 1, newMaximizingPlayer, maximizingPlayer)
-                maxValue = max(maxValue, value)
+                maxValue = max(maxValue, value[0])
             return maxValue
         else:
             minValue = 10000000
@@ -64,7 +76,7 @@ class LevelTwoOpponent:
         else:
             return Constants.Constants.WhitePlayer
 
-    # Alle sekvenser af multiple captures skal ses som et move hver
+    # All sequences of multiple captures count as one move.
     def __getChildBoards(self, board, playerColor):
         childBoards = list()
         validMoves = self.validateMoveAlgo.getValidMovesForPlayer(playerColor, board)
@@ -77,7 +89,7 @@ class LevelTwoOpponent:
                 culmSetOfBoards = list()
                 self.__captureMovesHelper(culmSetOfBoards, moves[2], moves[3], boardCaptureCopy)
                 for b in culmSetOfBoards:
-                    childBoards.append(b)
+                    childBoards.append(b) # Måske give movet med her?
 
             else:
                 boardCopy = copy.deepcopy(board)
