@@ -9,6 +9,7 @@ class LevelTwoOpponent:
         self.color = color
         self.validateMoveAlgo = ValidMoveAlgo.ValidMoveAlgo()
         self.toDoMoves = list()
+        self.maxBoards = list()
 
 
     def getMove(self, board):
@@ -16,22 +17,45 @@ class LevelTwoOpponent:
             l = list()
             l.append(board)
             #print("start board: " + str(l[0]))
-            max = self.__minimax(l, 3, self.color, self.color)
-            print("max[0]: " + str(max[0]))
-            print("max[1][1:]: " + str(max[1][1:]))
+            self.maxBoards = list()
+            max = self.__minimax(l, 5, self.color, self.color)
+            print("max[0]: " + str(max))
+            #print("max[1][1:]: " + str(max[1][1:]))
+            #print("maxBoards:")
+            captureMaxBoards = list()
+            nonCaptureMaxBoards = list()
+            for bo in self.maxBoards:
+                #print(str(bo[0]))
+                #print(str(bo[1:]))
+                # Check if capture move is avaliable
+                boardActuall = bo[0]
+                moves = bo[1:]
+                firstMove = moves[0]
+                if abs(firstMove[0] - firstMove[2]) == 2:
+                    captureMaxBoards.append(bo)
+                else:
+                    nonCaptureMaxBoards.append(bo)
 
-            lastMove = (0, 0, 0, 0)
-            for move in max[1][1:]:
-                print("move: " + str(move))
-                if lastMove == (0, 0, 0, 0):
+            boardToPlay = list()
+            if len(captureMaxBoards) > 0:
+                boardToPlay = random.choice(captureMaxBoards)
+            else:
+                boardToPlay = random.choice(nonCaptureMaxBoards)
+            actBoard = boardToPlay[0]
+            actMoves = boardToPlay[1:]
+            print(actMoves)
+            firstMove = actMoves[0]
+            lastMove = firstMove
+            for move in actMoves[1:]:
+                #print("move: " + str(move))
+                if (lastMove[2], lastMove[3]) == (move[0], move[1]):
+                    print("double jump:" + str(lastMove[2]) + str(lastMove[3]) + " to " + str(move[0]) + str(move[1]))
+                    self.toDoMoves.append(move)
                     lastMove = move
                 else:
-                    if (lastMove[2], lastMove[3]) == (move[0], move[1]):
-                        print("double jump:" + str(lastMove[2]) + str(lastMove[3]) + " to " + str(move[0]) + str(move[1]))
-                        self.toDoMoves.append(move)
-                        lastMove = move
+                    break
 
-            return max[1][1]
+            return firstMove
         else:
             print("todo: " + str(self.toDoMoves[0]))
             return self.toDoMoves.pop(0)
@@ -40,31 +64,29 @@ class LevelTwoOpponent:
     def __minimax(self, board, depth, maximizingPlayerDynamic, maximizingPlayer):
         if depth == 0 or self.__isGameOver(board):
             #print("depth = 0")
-            return (self.__calcBoardValue(board, maximizingPlayer), board)
+            return self.__calcBoardValue(board, maximizingPlayer)
 
         if maximizingPlayerDynamic == maximizingPlayer:
             maxValue = -10000000
-            maxBoard = list()
             childBoards = self.__getChildBoards(board, maximizingPlayerDynamic)
             for child in childBoards:
                 newMaximizingPlayer = self.__getNewMaximizingPlayer(maximizingPlayerDynamic)
                 value = self.__minimax(child, depth - 1, newMaximizingPlayer, maximizingPlayer)
-                maxValue = max(maxValue, value[0])
-                if maxValue == value[0]:
-                    maxBoard = value[1]
-
-            return (maxValue, maxBoard)
+                if maxValue == value or maxValue == -10000000:
+                    self.maxBoards.append(child)
+                elif maxValue < value:
+                    self.maxBoards = list()
+                    self.maxBoards.append(child)
+                maxValue = max(maxValue, value)
+            return maxValue
         else:
             minValue = 10000000
-            minBoard = list()
             childBoards = self.__getChildBoards(board, maximizingPlayerDynamic)
             for child in childBoards:
                 newMaximizingPlayer = self.__getNewMaximizingPlayer(maximizingPlayerDynamic)
                 value = self.__minimax(child, depth - 1, newMaximizingPlayer, maximizingPlayer)
-                minValue = min(minValue, value[0])
-                if minValue == value[0]:
-                    minBoard = value[1]
-            return (minValue, minBoard)
+                minValue = min(minValue, value)
+            return minValue
 
 
     def __calcBoardValue(self, board, maximizingPlayer):
