@@ -18,7 +18,7 @@ class LevelTwoOpponent:
             l.append(board)
             #print("start board: " + str(l[0]))
             self.maxBoards = list()
-            max = self.__minimax(l, 5, self.color, self.color)
+            max = self.__minimax(l, 4, self.color, self.color)
             print("max[0]: " + str(max))
             #print("max[1][1:]: " + str(max[1][1:]))
             #print("maxBoards:")
@@ -61,17 +61,17 @@ class LevelTwoOpponent:
             return self.toDoMoves.pop(0)
 
 
-    def __minimax(self, board, depth, maximizingPlayerDynamic, maximizingPlayer):
+    def __minimax(self, board, depth, playerInTurnDynamic, maximizingPlayer):
         if depth == 0 or self.__isGameOver(board):
             #print("depth = 0")
             return self.__calcBoardValue(board, maximizingPlayer)
 
-        if maximizingPlayerDynamic == maximizingPlayer:
+        if playerInTurnDynamic == maximizingPlayer:
             maxValue = -10000000
-            childBoards = self.__getChildBoards(board, maximizingPlayerDynamic)
+            childBoards = self.__getChildBoards(board, playerInTurnDynamic)
             for child in childBoards:
-                newMaximizingPlayer = self.__getNewMaximizingPlayer(maximizingPlayerDynamic)
-                value = self.__minimax(child, depth - 1, newMaximizingPlayer, maximizingPlayer)
+                newPlayerInTurn = self.__getNewPlayerInTurn(playerInTurnDynamic)
+                value = self.__minimax(child, depth - 1, newPlayerInTurn, maximizingPlayer)
                 if maxValue == value or maxValue == -10000000:
                     self.maxBoards.append(child)
                 elif maxValue < value:
@@ -81,10 +81,10 @@ class LevelTwoOpponent:
             return maxValue
         else:
             minValue = 10000000
-            childBoards = self.__getChildBoards(board, maximizingPlayerDynamic)
+            childBoards = self.__getChildBoards(board, playerInTurnDynamic)
             for child in childBoards:
-                newMaximizingPlayer = self.__getNewMaximizingPlayer(maximizingPlayerDynamic)
-                value = self.__minimax(child, depth - 1, newMaximizingPlayer, maximizingPlayer)
+                newPlayerInTurn = self.__getNewPlayerInTurn(playerInTurnDynamic)
+                value = self.__minimax(child, depth - 1, newPlayerInTurn, maximizingPlayer)
                 minValue = min(minValue, value)
             return minValue
 
@@ -110,7 +110,7 @@ class LevelTwoOpponent:
             return blackValue - whiteValue
 
 
-    def __getNewMaximizingPlayer(self, player):
+    def __getNewPlayerInTurn(self, player):
         if player == Constants.Constants.WhitePlayer:
             return Constants.Constants.BlackPlayer
         else:
