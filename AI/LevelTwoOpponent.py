@@ -1,7 +1,8 @@
 from Gameplay import Constants, ValidMoveAlgo
+from Test import TestsMethods
 import random, copy, sys
 
-# Classic Minimax. No algorithm optimization.
+# Classic Minimax.
 class LevelTwoOpponent:
 
     def __init__(self, color):
@@ -10,6 +11,7 @@ class LevelTwoOpponent:
         self.validateMoveAlgo = ValidMoveAlgo.ValidMoveAlgo()
         self.toDoMoves = list()
         self.maxBoards = list()
+        self.depth = 0
 
 
     def getMove(self, board):
@@ -18,6 +20,7 @@ class LevelTwoOpponent:
             l.append(board)
             #print("start board: " + str(l[0]))
             self.maxBoards = list()
+            self.depth = 4
             max = self.__minimax(l, 4, self.color, self.color)
             print("max[0]: " + str(max))
             #print("max[1][1:]: " + str(max[1][1:]))
@@ -25,6 +28,8 @@ class LevelTwoOpponent:
             captureMaxBoards = list()
             nonCaptureMaxBoards = list()
             for bo in self.maxBoards:
+                #test = TestsMethods.TestsMethods()
+                #test.printBoard(bo[0])
                 #print(str(bo[0]))
                 #print(str(bo[1:]))
                 # Check if capture move is avaliable
@@ -43,13 +48,13 @@ class LevelTwoOpponent:
                 boardToPlay = random.choice(nonCaptureMaxBoards)
             actBoard = boardToPlay[0]
             actMoves = boardToPlay[1:]
-            print(actMoves)
+            #print(actMoves)
             firstMove = actMoves[0]
             lastMove = firstMove
             for move in actMoves[1:]:
                 #print("move: " + str(move))
                 if (lastMove[2], lastMove[3]) == (move[0], move[1]):
-                    print("double jump:" + str(lastMove[2]) + str(lastMove[3]) + " to " + str(move[0]) + str(move[1]))
+                    #print("double jump:" + str(lastMove[2]) + str(lastMove[3]) + " to " + str(move[0]) + str(move[1]))
                     self.toDoMoves.append(move)
                     lastMove = move
                 else:
@@ -57,31 +62,32 @@ class LevelTwoOpponent:
 
             return firstMove
         else:
-            print("todo: " + str(self.toDoMoves[0]))
+            #print("to do: " + str(self.toDoMoves[0]))
             return self.toDoMoves.pop(0)
 
 
     def __minimax(self, board, depth, playerInTurnDynamic, maximizingPlayer):
         if depth == 0 or self.__isGameOver(board):
             #print("depth = 0")
-            return self.__calcBoardValue(board, maximizingPlayer)
+            return self.calcBoardValue(board, maximizingPlayer)
 
         if playerInTurnDynamic == maximizingPlayer:
             maxValue = -10000000
-            childBoards = self.__getChildBoards(board, playerInTurnDynamic)
+            childBoards = self.getChildBoards(board, playerInTurnDynamic)
             for child in childBoards:
                 newPlayerInTurn = self.__getNewPlayerInTurn(playerInTurnDynamic)
                 value = self.__minimax(child, depth - 1, newPlayerInTurn, maximizingPlayer)
-                if maxValue == value or maxValue == -10000000:
-                    self.maxBoards.append(child)
-                elif maxValue < value:
-                    self.maxBoards = list()
-                    self.maxBoards.append(child)
+                if self.depth == depth:
+                    if maxValue == value or maxValue == -10000000:
+                        self.maxBoards.append(child)
+                    elif maxValue < value:
+                        self.maxBoards = list()
+                        self.maxBoards.append(child)
                 maxValue = max(maxValue, value)
             return maxValue
         else:
             minValue = 10000000
-            childBoards = self.__getChildBoards(board, playerInTurnDynamic)
+            childBoards = self.getChildBoards(board, playerInTurnDynamic)
             for child in childBoards:
                 newPlayerInTurn = self.__getNewPlayerInTurn(playerInTurnDynamic)
                 value = self.__minimax(child, depth - 1, newPlayerInTurn, maximizingPlayer)
@@ -89,7 +95,7 @@ class LevelTwoOpponent:
             return minValue
 
 
-    def __calcBoardValue(self, board, maximizingPlayer):
+    def calcBoardValue(self, board, maximizingPlayer):
         whiteValue = 0
         blackValue = 0
         #print("calc: " + str(board[1]))
@@ -118,7 +124,7 @@ class LevelTwoOpponent:
 
     # All sequences of multiple captures count as one move.
     # ChildBoards is a list af list (the board at [0] and the moves to get to that board at [1:])
-    def __getChildBoards(self, board, playerColor):
+    def getChildBoards(self, board, playerColor):
         childBoards = list()
         validMoves = self.validateMoveAlgo.getValidMovesForPlayer(playerColor, board[0])
         for moves in validMoves:

@@ -1,4 +1,5 @@
-from Gameplay import Constants, Piece, ValidMoveAlgo
+from Gameplay import Constants, Piece, ValidMoveAlgo, GetMoveThread
+from Test import TestsMethods
 import copy
 
 class Game:
@@ -127,6 +128,9 @@ class Game:
 
     # Precondition: The move is checked valid.
     def movePieceFromTo(self, rowFrom, colFrom, rowTo, colTo):
+        #test = TestsMethods.TestsMethods()
+        #test.printBoard(self.piecesMap)
+
         pieceToMove = self.piecesMap[(rowFrom, colFrom)]
         pieceToMove.row = rowTo
         pieceToMove.col = colTo
@@ -241,11 +245,19 @@ class Game:
                     hashStr += self.piecesMap[(row, col)].getHash()
         return hashStr
 
+    #oppoMove = (-1, -1, -1, -1)
+
+    #def startThreadForOppeMove(self):
+        #board = copy.deepcopy(self.piecesMap)
+        #oppeMove = self.opponent.getMove(board)
+
 
     # Ask the opponent for a move to make
     def getOpponentMove(self):
-        board = copy.deepcopy(self.piecesMap)
         # return: (rowFrom, colFrom, rowTo, colTo)
+        #.start_new_thread(startThreadForOppeMove, ())
+        #thread.join()
+        #return oppoMove
+        board = copy.deepcopy(self.piecesMap)
         return self.opponent.getMove(board)
-
 
